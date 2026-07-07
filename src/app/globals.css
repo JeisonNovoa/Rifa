@@ -1,26 +1,152 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============================================================
+   Viaja por Colombia — tema del cartel
+   Paleta derivada del flyer: azul noche, dorado atardecer,
+   crema papel de boleta y rojo sello.
+   ============================================================ */
+
+@theme {
+  /* Tipografías del cartel */
+  --font-titulo: var(--font-anton), "Arial Narrow", sans-serif;
+  --font-script: var(--font-yellowtail), cursive;
+  --font-cuerpo: var(--font-instrument), system-ui, sans-serif;
+
+  /* Azul noche (neutros tintados hacia la marca) */
+  --color-noche-950: oklch(17% 0.045 262);
+  --color-noche-900: oklch(21% 0.05 260);
+  --color-noche-800: oklch(26% 0.055 258);
+  --color-noche-700: oklch(32% 0.06 256);
+  --color-noche-600: oklch(41% 0.055 254);
+  --color-noche-400: oklch(60% 0.045 252);
+  --color-noche-300: oklch(73% 0.03 250);
+
+  /* Dorado atardecer */
+  --color-dorado-300: oklch(88% 0.13 90);
+  --color-dorado-400: oklch(84% 0.155 86);
+  --color-dorado-500: oklch(78% 0.16 81);
+  --color-dorado-600: oklch(67% 0.14 74);
+
+  /* Crema papel de boleta */
+  --color-crema-50: oklch(96% 0.02 92);
+  --color-crema-100: oklch(93% 0.025 90);
+  --color-crema-300: oklch(85% 0.03 88);
+
+  /* Rojo sello */
+  --color-rojo-400: oklch(62% 0.18 27);
+  --color-rojo-500: oklch(54% 0.19 27);
+
+  --ease-salida: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-noche-950);
+  color: var(--color-crema-50);
+  font-family: var(--font-cuerpo);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: var(--color-dorado-400);
+  color: var(--color-noche-950);
+}
+
+/* --- Motivos de marca ------------------------------------------------ */
+
+/* Trazo de brocha dorado detrás de palabras clave, como en el cartel */
+.trazo-dorado {
+  display: inline-block;
+  padding: 0.04em 0.38em 0.12em;
+  background-color: var(--color-dorado-400);
+  color: var(--color-noche-950);
+  transform: rotate(-1.5deg);
+  border-radius: 0.5em 0.2em 0.55em 0.25em / 0.25em 0.6em 0.2em 0.5em;
+}
+
+/* Fila de huequitos de boleta perforada (se "ve" el fondo a través) */
+.perforado {
+  height: 8px;
+  background-image: radial-gradient(circle, var(--color-noche-950) 2.5px, transparent 3px);
+  background-size: 14px 8px;
+  background-position: center;
+  background-repeat: repeat-x;
+}
+
+/* Resplandor cálido de amanecer detrás del héroe (cielo del flyer).
+   Va a ANCHO COMPLETO de la página (no del contenedor) y con los centros
+   de luz por encima del borde superior: así nunca se ven cortes ni líneas
+   en los laterales — solo un baño de luz que se desvanece suave. */
+.resplandor-alba {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 30rem;
+  pointer-events: none;
+  background:
+    radial-gradient(52rem 26rem at 84% -9rem, oklch(55% 0.13 55 / 0.14), transparent 60%),
+    radial-gradient(46rem 24rem at 8% -7rem, oklch(60% 0.12 240 / 0.12), transparent 60%);
+  -webkit-mask-image: linear-gradient(to bottom, black 45%, transparent);
+  mask-image: linear-gradient(to bottom, black 45%, transparent);
+}
+
+/* --- Controles -------------------------------------------------------- */
+
+.btn-dorado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.9rem;
+  background-color: var(--color-dorado-400);
+  color: var(--color-noche-950);
+  font-weight: 600;
+  padding: 0.875rem 1.5rem;
+  box-shadow: 0 12px 28px -12px oklch(78% 0.16 81 / 0.55);
+  transition:
+    background-color 0.15s ease,
+    transform 0.15s var(--ease-salida),
+    box-shadow 0.2s ease;
+}
+.btn-dorado:hover {
+  background-color: var(--color-dorado-300);
+  transform: translateY(-1px);
+}
+.btn-dorado:active {
+  transform: translateY(0);
+}
+.btn-dorado:focus-visible {
+  outline: 2px solid var(--color-dorado-300);
+  outline-offset: 2px;
+}
+
+/* --- Movimiento ------------------------------------------------------- */
+
+@keyframes subir {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animar-entrada {
+  animation: subir 0.7s var(--ease-salida) both;
+}
+.retraso-1 { animation-delay: 0.08s; }
+.retraso-2 { animation-delay: 0.16s; }
+.retraso-3 { animation-delay: 0.26s; }
+.retraso-4 { animation-delay: 0.38s; }
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .animar-entrada {
+    animation: none;
+  }
 }

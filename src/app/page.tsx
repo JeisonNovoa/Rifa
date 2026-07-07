@@ -1,65 +1,115 @@
-import Image from "next/image";
+import { AnuncioGanador } from "@/components/rifa/AnuncioGanador";
+import { ComoFunciona } from "@/components/rifa/ComoFunciona";
+import { Destinos } from "@/components/rifa/Destinos";
+import { HeroRifa } from "@/components/rifa/HeroRifa";
+import { TableroNumeros } from "@/components/tablero/TableroNumeros";
+import { obtenerInfoGanador } from "@/lib/datos/ganador";
+import { obtenerRifaPublica, obtenerTablero } from "@/lib/datos/rifa";
+import { formatearFechaCorta } from "@/lib/formato";
 
-export default function Home() {
+// El tablero debe estar fresco en cada visita.
+export const dynamic = "force-dynamic";
+
+export default async function PaginaRifa() {
+  try {
+    const [rifa, tablero] = await Promise.all([
+      obtenerRifaPublica(),
+      obtenerTablero(),
+    ]);
+
+    return (
+      <div className="relative">
+        {/* Resplandor a ancho completo de la página (detrás de todo) */}
+        <div className="resplandor-alba" aria-hidden="true" />
+
+        <main className="relative mx-auto max-w-3xl px-5 pb-44 sm:px-8">
+          <HeroRifa rifa={rifa} />
+          <Destinos />
+
+          <section
+            id="numeros"
+            aria-labelledby="titulo-numeros"
+            className="mt-20 scroll-mt-8 sm:mt-28"
+          >
+            {rifa.estado === "cerrada" ? (
+              <>
+                <p className="font-titulo text-xs tracking-[0.3em] text-dorado-400">
+                  EL SORTEO
+                </p>
+                <h2
+                  id="titulo-numeros"
+                  className="mt-2 font-titulo text-3xl text-crema-50 sm:text-4xl"
+                >
+                  {rifa.numero_ganador === null ? (
+                    <>
+                      Atentos al <span className="trazo-dorado">resultado</span>
+                    </>
+                  ) : (
+                    <>
+                      ¡Tenemos <span className="trazo-dorado">ganador</span>!
+                    </>
+                  )}
+                </h2>
+                <AnuncioGanador
+                  fechaSorteo={rifa.fecha_sorteo}
+                  ganador={await obtenerInfoGanador(rifa.numero_ganador)}
+                />
+              </>
+            ) : (
+              <>
+                <p className="font-titulo text-xs tracking-[0.3em] text-dorado-400">
+                  EL TABLERO
+                </p>
+                <h2
+                  id="titulo-numeros"
+                  className="mt-2 font-titulo text-3xl text-crema-50 sm:text-4xl"
+                >
+                  Escoge tu <span className="trazo-dorado">número</span> de la
+                  suerte
+                </h2>
+                <div className="mt-6">
+                  <TableroNumeros
+                    inicial={tablero}
+                    raffleId={rifa.id}
+                    precio={rifa.precio_por_numero}
+                    minutosReserva={rifa.minutos_reserva}
+                  />
+                </div>
+              </>
+            )}
+          </section>
+
+          <ComoFunciona rifa={rifa} />
+
+          <footer className="mt-24 border-t border-noche-800 pb-4 pt-8 text-center">
+            <p className="font-script text-2xl text-dorado-400">
+              Gracias por hacer parte de esta aventura ♥
+            </p>
+            <p className="mt-3 text-xs text-noche-400">
+              Viaja por Colombia · Rifa 00–99 · Sorteo{" "}
+              {formatearFechaCorta(rifa.fecha_sorteo)} con la Lotería de Boyacá
+            </p>
+          </footer>
+        </main>
+      </div>
+    );
+  } catch (error: unknown) {
+    console.error("Error cargando la página de la rifa:", error);
+    return <ErrorCarga />;
+  }
+}
+
+function ErrorCarga() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main className="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center px-6 text-center">
+      <p className="font-titulo text-6xl text-dorado-400">¡Uy!</p>
+      <h1 className="mt-4 font-titulo text-2xl text-crema-50">
+        No pudimos cargar la rifa
+      </h1>
+      <p className="mt-3 text-noche-300">
+        Refresca la página en un momento. Si sigue fallando, avísale al
+        organizador.
+      </p>
+    </main>
   );
 }
