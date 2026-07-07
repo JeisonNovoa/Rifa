@@ -45,7 +45,15 @@ Abre [http://localhost:3000](http://localhost:3000).
 ## Despliegue en Fly.io
 
 ```bash
-fly secrets set SUPABASE_SECRET_KEY=...
+fly secrets set \
+  SUPABASE_SECRET_KEY=... \
+  ADMIN_EMAILS=... \
+  NEXT_PUBLIC_SUPABASE_URL=https://TU-PROYECTO.supabase.co \
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+
+fly deploy \
+  --build-arg NEXT_PUBLIC_SUPABASE_URL=https://TU-PROYECTO.supabase.co \
+  --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 ```
 
 > ⚠️ **Importante con Docker/Fly:** las variables `NEXT_PUBLIC_*` se **incrustan
