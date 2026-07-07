@@ -142,11 +142,36 @@ body {
 .retraso-3 { animation-delay: 0.26s; }
 .retraso-4 { animation-delay: 0.38s; }
 
+/* "Pop" al seleccionar un número (se aplica al número, no a la casilla,
+   para no interferir con el translate del hover) */
+@keyframes pop {
+  0% { transform: scale(0.85); }
+  55% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+.numero-pop {
+  display: inline-block;
+  animation: pop 0.25s var(--ease-salida);
+}
+
+/* Aparición ligada al scroll (mejora progresiva: solo navegadores modernos).
+   OJO: no usar en contenedores con elementos position:fixed adentro. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .revelar {
+      animation: subir 0.8s var(--ease-salida) both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 35%;
+    }
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
-  .animar-entrada {
+  .animar-entrada,
+  .numero-pop {
     animation: none;
   }
 }

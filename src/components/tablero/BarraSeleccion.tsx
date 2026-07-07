@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { IconoBoleto } from "@/components/decoracion/Iconos";
 import { dosDigitos, formatearPesos } from "@/lib/formato";
 import { FormularioReserva } from "./FormularioReserva";
 
@@ -68,6 +69,7 @@ export function BarraSeleccion({
               onClick={() => setFormularioAbierto(true)}
               className="btn-dorado shrink-0 !px-4 !py-2.5 text-sm sm:!px-5"
             >
+              <IconoBoleto className="h-4 w-4" />
               Apartarlo
             </button>
           )}

@@ -1,13 +1,22 @@
-# fly.toml app configuration file generated for rifa on 2026-07-07T06:01:08-05:00
-#
-# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
-#
+# Configuración de Fly.io para la rifa "Viaja por Colombia".
+# Deploy: fly deploy   (los secrets de runtime ya están con `fly secrets set`)
 
 app = 'rifa'
 primary_region = 'ams'
 
 [build]
   dockerfile = 'Dockerfile'
+
+  # Se incrustan en el bundle del NAVEGADOR durante el build.
+  # Son valores públicos por diseño (la publishable key solo lee vistas públicas).
+  [build.args]
+    NEXT_PUBLIC_SUPABASE_URL = 'https://falakbqcbvtadmxkkhiu.supabase.co'
+    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_HmiRVOsJkh6xrix_05VBpQ_Q6a3eECQ'
+    NEXT_PUBLIC_SITE_URL = 'https://rifa.fly.dev'
+
+[env]
+  PORT = '8080'
+  HOSTNAME = '0.0.0.0'
 
 [http_service]
   internal_port = 8080
@@ -18,7 +27,6 @@ primary_region = 'ams'
   processes = ['app']
 
 [[vm]]
-  memory = '1gb'
+  memory = '256mb'
   cpu_kind = 'shared'
   cpus = 1
-  memory_mb = 256

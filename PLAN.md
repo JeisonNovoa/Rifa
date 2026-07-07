@@ -153,7 +153,7 @@ Toda transición escribe en `audit_log`.
 | 2 | Reserva 15 min + pantalla pago Nequi + subir comprobante → en_revision | ✅ 2026-07-06 |
 | 3 | Panel admin (login, ver comprobante, confirmar/rechazar, liberar expirados, venta manual, revertir venta, configuración editable + QR) | ✅ 2026-07-06 |
 | 4 | Página de ganador + cierre/reapertura de rifa + venta manual post-cierre (realtime resuelto con polling 10s + vista que enmascara expirados — suficiente para 100 números) | ✅ 2026-07-06 |
-| 5 | Imagen QR para compartir, textos de confianza, manejo de errores, pruebas | ☐ |
+| 5 | QR descargable en el panel, íconos/animaciones/responsive, OG para WhatsApp, favicon, 404, Dockerfile+fly.toml corregidos (502 de prod resuelto: PORT 8080) | ✅ 2026-07-07 |
 
 Cada fase deja algo funcional y verificable.
 

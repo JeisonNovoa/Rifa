@@ -1,5 +1,6 @@
 import { BotonAccion } from "@/components/admin/BotonAccion";
 import { FormularioGanador } from "@/components/admin/FormularioGanador";
+import { IconoWhatsApp } from "@/components/decoracion/Iconos";
 import {
   accionCerrarRifa,
   accionReabrirRifa,
@@ -97,9 +98,10 @@ export function SeccionSorteo({ rifa, ganador }: SeccionSorteoProps) {
                       )}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-dorado-300 underline decoration-dorado-600 underline-offset-2 hover:text-dorado-400"
+                      className="inline-flex items-center gap-1.5 text-sm text-dorado-300 underline decoration-dorado-600 underline-offset-2 hover:text-dorado-400"
                     >
-                      Avisarle por WhatsApp ↗
+                      <IconoWhatsApp className="h-4 w-4" />
+                      Avisarle por WhatsApp
                     </a>
                   )}
                 </>

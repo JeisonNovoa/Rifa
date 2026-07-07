@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { IconoWhatsApp } from "@/components/decoracion/Iconos";
 import {
   accionConfirmarPago,
   accionRechazarPago,
@@ -49,9 +50,10 @@ export function TarjetaPendiente({
               href={`https://wa.me/57${whatsapp}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm font-medium text-noche-900/60 underline decoration-noche-900/30 underline-offset-2 hover:text-noche-900"
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-noche-900/60 underline decoration-noche-900/30 underline-offset-2 hover:text-noche-900"
             >
-              {whatsapp} · WhatsApp ↗
+              <IconoWhatsApp className="h-4 w-4" />
+              {whatsapp}
             </a>
           )}
 

@@ -44,22 +44,24 @@ Abre [http://localhost:3000](http://localhost:3000).
 
 ## Despliegue en Fly.io
 
-```bash
-fly secrets set \
-  SUPABASE_SECRET_KEY=... \
-  ADMIN_EMAILS=... \
-  NEXT_PUBLIC_SUPABASE_URL=https://TU-PROYECTO.supabase.co \
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+Los secrets de runtime se configuran una sola vez:
 
-fly deploy \
-  --build-arg NEXT_PUBLIC_SUPABASE_URL=https://TU-PROYECTO.supabase.co \
-  --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+```bash
+fly secrets set SUPABASE_SECRET_KEY=... ADMIN_EMAILS=... PORT=8080
 ```
 
-> ⚠️ **Importante con Docker/Fly:** las variables `NEXT_PUBLIC_*` se **incrustan
-> en el build**, no se leen al arrancar el contenedor. Deben estar disponibles
-> como build args al momento de `fly deploy` (o definidas en el Dockerfile),
-> no solo como secrets de runtime.
+Los `NEXT_PUBLIC_*` (públicos por diseño) ya están como `[build.args]` en
+[`fly.toml`](./fly.toml), así que desplegar es solo:
+
+```bash
+fly deploy
+```
+
+> ⚠️ **Por qué:** las variables `NEXT_PUBLIC_*` se **incrustan en el bundle del
+> navegador durante el build** — no se leen al arrancar el contenedor. Por eso
+> van como build args (fly.toml) y no solo como secrets. El `Dockerfile` corre
+> Next en modo standalone escuchando en `0.0.0.0:8080` (el `internal_port` que
+> Fly espera).
 
 ## Estructura
 

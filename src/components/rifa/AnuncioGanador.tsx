@@ -32,7 +32,7 @@ export function AnuncioGanador({ fechaSorteo, ganador }: AnuncioGanadorProps) {
   }
 
   return (
-    <div className="mt-6 overflow-hidden rounded-2xl bg-crema-50 text-noche-900 shadow-xl shadow-noche-900/40">
+    <div className="revelar mt-6 overflow-hidden rounded-2xl bg-crema-50 text-noche-900 shadow-xl shadow-noche-900/40">
       <div className="perforado" aria-hidden="true" />
       <div className="px-6 py-8 text-center sm:px-8">
         <p className="font-titulo text-xs tracking-[0.28em] text-rojo-500">

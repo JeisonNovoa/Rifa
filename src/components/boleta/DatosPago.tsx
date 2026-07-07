@@ -1,4 +1,5 @@
 import { BotonCopiar } from "@/components/boleta/BotonCopiar";
+import { IconoCelular, IconoLlave } from "@/components/decoracion/Iconos";
 import { formatearPesos } from "@/lib/formato";
 import type { RifaPublica } from "@/lib/types";
 
@@ -31,7 +32,8 @@ export function DatosPago({ rifa, className = "" }: DatosPagoProps) {
         <div className="mt-5 rounded-xl border border-noche-900/15 bg-white/60 p-4">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-xs font-semibold tracking-wide text-noche-900/60">
+              <p className="flex items-center gap-1.5 text-xs font-semibold tracking-wide text-noche-900/60">
+                <IconoLlave className="h-4 w-4 text-dorado-600" />
                 LLAVE BRE-B · RECOMENDADO
               </p>
               <p className="mt-1 truncate font-titulo text-2xl tracking-wider">
@@ -87,7 +89,8 @@ export function DatosPago({ rifa, className = "" }: DatosPagoProps) {
               Abre tu app bancaria, escanea y paga de una.
             </p>
 
-            <p className="mt-4 text-xs font-semibold tracking-wide text-noche-900/60">
+            <p className="mt-4 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-noche-900/60">
+              <IconoCelular className="h-4 w-4 text-dorado-600" />
               NEQUI CLÁSICO
             </p>
             <div className="mt-1 flex items-center gap-2.5">

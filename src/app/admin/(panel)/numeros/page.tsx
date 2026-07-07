@@ -3,6 +3,7 @@ import { BotonAccion } from "@/components/admin/BotonAccion";
 import { FormularioVentaManual } from "@/components/admin/FormularioVentaManual";
 import { ESTILO_INSIGNIA, ETIQUETA_ESTADO } from "@/components/admin/etiquetas";
 import { BotonCopiar } from "@/components/boleta/BotonCopiar";
+import { IconoWhatsApp } from "@/components/decoracion/Iconos";
 import {
   accionConfirmarPago,
   accionRechazarPago,
@@ -86,8 +87,9 @@ function FilaNumero({ ticket, base }: { ticket: TicketAdmin; base: string }) {
             href={`https://wa.me/57${ticket.comprador_whatsapp}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-noche-300 underline decoration-noche-600 underline-offset-2 hover:text-crema-50"
+            className="inline-flex items-center gap-1.5 text-noche-300 underline decoration-noche-600 underline-offset-2 hover:text-crema-50"
           >
+            <IconoWhatsApp className="h-3.5 w-3.5" />
             {ticket.comprador_whatsapp}
           </a>
         ) : (

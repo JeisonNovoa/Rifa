@@ -15,7 +15,15 @@ export function usarTableroEnVivo(inicial: CasillaTablero[]): CasillaTablero[] {
   const [casillas, setCasillas] = useState<CasillaTablero[]>(inicial);
 
   useEffect(() => {
-    const supabase = crearClienteNavegador();
+    // Si el bundle quedó sin las variables públicas (p. ej. un build sin
+    // build-args), el tablero funciona igual: solo pierde el refresco en vivo.
+    let supabase: ReturnType<typeof crearClienteNavegador>;
+    try {
+      supabase = crearClienteNavegador();
+    } catch (error: unknown) {
+      console.error("Tablero sin refresco automático:", error);
+      return;
+    }
     let activo = true;
 
     const refrescar = async () => {

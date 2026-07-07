@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { IconoCopiar, IconoListo } from "@/components/decoracion/Iconos";
 
 interface BotonCopiarProps {
   /** Texto a copiar. Si se omite, copia la URL actual (enlace de la boleta). */
@@ -42,7 +43,12 @@ export function BotonCopiar({
       onClick={alCopiar}
       className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 ${ESTILOS[apariencia]} ${className}`}
     >
-      {copiado ? "¡Copiado! ✓" : etiqueta}
+      {copiado ? (
+        <IconoListo className="h-3.5 w-3.5" />
+      ) : (
+        <IconoCopiar className="h-3.5 w-3.5" />
+      )}
+      {copiado ? "¡Copiado!" : etiqueta}
     </button>
   );
 }

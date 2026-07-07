@@ -60,7 +60,11 @@ export function CasillaNumero({
     >
       <span
         className={
-          vendido ? "line-through decoration-rojo-400/70 decoration-2" : undefined
+          vendido
+            ? "line-through decoration-rojo-400/70 decoration-2"
+            : seleccionado
+              ? "numero-pop"
+              : undefined
         }
       >
         {dosDigitos(numero)}

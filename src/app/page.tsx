@@ -1,3 +1,4 @@
+import { RutaAvion } from "@/components/decoracion/RutaAvion";
 import { AnuncioGanador } from "@/components/rifa/AnuncioGanador";
 import { ComoFunciona } from "@/components/rifa/ComoFunciona";
 import { Destinos } from "@/components/rifa/Destinos";
@@ -81,8 +82,9 @@ export default async function PaginaRifa() {
 
           <ComoFunciona rifa={rifa} />
 
-          <footer className="mt-24 border-t border-noche-800 pb-4 pt-8 text-center">
-            <p className="font-script text-2xl text-dorado-400">
+          <footer className="revelar mt-24 border-t border-noche-800 pb-4 pt-8 text-center">
+            <RutaAvion className="mx-auto w-44 text-dorado-400/30" />
+            <p className="mt-2 font-script text-2xl text-dorado-400">
               Gracias por hacer parte de esta aventura ♥
             </p>
             <p className="mt-3 text-xs text-noche-400">

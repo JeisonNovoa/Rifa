@@ -75,7 +75,7 @@ export function TableroNumeros({
         {aviso}
       </p>
 
-      <div className="grid grid-cols-5 gap-2 sm:grid-cols-10 sm:gap-2.5">
+      <div className="animar-entrada grid grid-cols-5 gap-2 sm:grid-cols-10 sm:gap-2.5">
         {casillas.map((casilla) => (
           <CasillaNumero
             key={casilla.numero}

@@ -3,7 +3,7 @@ import { DESTINOS } from "@/lib/contenido";
 /** Lista editorial de los 4 destinos que puede elegir el ganador. */
 export function Destinos() {
   return (
-    <section aria-labelledby="titulo-destinos" className="mt-16 sm:mt-24">
+    <section aria-labelledby="titulo-destinos" className="revelar mt-16 sm:mt-24">
       <p className="font-titulo text-xs tracking-[0.3em] text-dorado-400">
         EL PREMIO
       </p>

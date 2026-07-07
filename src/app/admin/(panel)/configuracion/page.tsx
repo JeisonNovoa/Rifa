@@ -1,3 +1,4 @@
+import { FormularioCompartir } from "@/components/admin/FormularioCompartir";
 import { FormularioConfiguracion } from "@/components/admin/FormularioConfiguracion";
 import { SeccionSorteo } from "@/components/admin/SeccionSorteo";
 import { obtenerInfoGanador } from "@/lib/datos/ganador";
@@ -20,6 +21,7 @@ export default async function PaginaConfiguracion() {
       </div>
       <SeccionSorteo rifa={rifa} ganador={ganador} />
       <FormularioConfiguracion rifa={rifa} />
+      <FormularioCompartir />
     </div>
   );
 }

@@ -1,3 +1,7 @@
+import {
+  IconoBoleto,
+  IconoFlechaAbajo,
+} from "@/components/decoracion/Iconos";
 import { RutaAvion } from "@/components/decoracion/RutaAvion";
 import { SelloRifa } from "@/components/decoracion/SelloRifa";
 import { formatearFechaCorta, formatearPesos } from "@/lib/formato";
@@ -52,17 +56,20 @@ export function HeroRifa({ rifa }: HeroRifaProps) {
           {rifa.estado === "activa" ? (
             <>
               <a href="#numeros" className="btn-dorado">
+                <IconoBoleto className="h-5 w-5" />
                 Escoge tu número · {formatearPesos(rifa.precio_por_numero)}
               </a>
               <a
                 href="#como-funciona"
-                className="text-sm font-medium text-noche-300 underline decoration-noche-600 underline-offset-4 transition-colors hover:text-crema-50"
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-noche-300 underline decoration-noche-600 underline-offset-4 transition-colors hover:text-crema-50"
               >
                 ¿Cómo funciona?
+                <IconoFlechaAbajo className="h-3.5 w-3.5" />
               </a>
             </>
           ) : (
             <a href="#numeros" className="btn-dorado">
+              <IconoBoleto className="h-5 w-5" />
               Ver el resultado del sorteo
             </a>
           )}

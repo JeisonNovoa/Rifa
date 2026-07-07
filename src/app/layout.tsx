@@ -19,11 +19,24 @@ const instrument = Instrument_Sans({
   variable: "--font-instrument",
 });
 
+const DESCRIPCION =
+  "Viaje para dos personas + $500.000 de viáticos. Boleta a $60.000. " +
+  "Escoge tu número del 00 al 99. Juega el sábado 26 de septiembre de 2026 con la Lotería de Boyacá.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://rifa.fly.dev"),
   title: "Viaja por Colombia — Rifa · Gánate un viaje para 2",
-  description:
-    "Viaje para dos personas + $500.000 de viáticos. Boleta a $60.000. " +
-    "Escoge tu número del 00 al 99. Juega el sábado 26 de septiembre de 2026 con la Lotería de Boyacá.",
+  description: DESCRIPCION,
+  openGraph: {
+    title: "Viaja por Colombia — Rifa",
+    description: DESCRIPCION,
+    siteName: "Viaja por Colombia",
+    locale: "es_CO",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export const viewport: Viewport = {

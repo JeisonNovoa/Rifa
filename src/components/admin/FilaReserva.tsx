@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { IconoWhatsApp } from "@/components/decoracion/Iconos";
 import { accionRechazarPago } from "@/lib/acciones/admin";
 import { dosDigitos } from "@/lib/formato";
 import { BotonAccion } from "./BotonAccion";
@@ -35,9 +36,10 @@ export function FilaReserva({
             href={`https://wa.me/57${whatsapp}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-noche-300 underline decoration-noche-600 underline-offset-2 hover:text-crema-50"
+            className="inline-flex items-center gap-1 text-xs text-noche-300 underline decoration-noche-600 underline-offset-2 hover:text-crema-50"
           >
-            {whatsapp} ↗
+            <IconoWhatsApp className="h-3.5 w-3.5" />
+            {whatsapp}
           </a>
         )}
       </div>
