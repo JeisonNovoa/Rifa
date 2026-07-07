@@ -1,3 +1,6 @@
+# syntax=docker/dockerfile:1
+# Next.js 16 en modo standalone, escuchando en 0.0.0.0:8080 (lo que Fly espera).
+
 FROM node:22-alpine AS deps
 WORKDIR /app
 
@@ -7,12 +10,16 @@ RUN npm ci
 FROM node:22-alpine AS builder
 WORKDIR /app
 
+# Las NEXT_PUBLIC_* se INCRUSTAN en el bundle del navegador en este paso.
+# Se pasan como build args (ver [build.args] en fly.toml). Son valores
+# públicos por diseño (la publishable key solo permite leer las vistas).
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 ARG NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+ENV NEXT_TELEMETRY_DISABLED=1
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -25,6 +32,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 ENV PORT=8080
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN addgroup --system --gid 1001 nodejs \
   && adduser --system --uid 1001 nextjs
