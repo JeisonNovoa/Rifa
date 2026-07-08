@@ -10,6 +10,8 @@ import {
 } from "@/lib/acciones/admin";
 import { dosDigitos, formatearPesos } from "@/lib/formato";
 import { BotonAccion } from "./BotonAccion";
+import { DialogoConfirmar } from "./DialogoConfirmar";
+import { usarConfirmacion } from "./usarConfirmacion";
 
 interface FilaDeudorProps {
   ticketId: string;
@@ -111,17 +113,23 @@ function FormularioAbonoRapido({
     ESTADO_INICIAL
   );
   const [monto, setMonto] = useState(falta);
+  const conf = usarConfirmacion();
 
   return (
     <form
+      ref={conf.formRef}
       action={enviar}
-      onSubmit={(evento) => {
-        if (!window.confirm(`¿Registrar un abono de ${formatearPesos(monto)}? Solo hazlo si YA recibiste la plata.`)) {
-          evento.preventDefault();
-        }
-      }}
+      onSubmit={conf.alEnviar}
       className="flex flex-wrap items-center gap-2"
     >
+      <DialogoConfirmar
+        abierto={conf.abierto}
+        titulo="Registrar abono manual"
+        mensaje={`¿Registrar un abono de ${formatearPesos(monto)}? Solo hazlo si YA recibiste la plata.`}
+        textoConfirmar="Sí, registrar"
+        onConfirmar={conf.confirmar}
+        onCancelar={conf.cancelar}
+      />
       <input type="hidden" name="ticketId" value={ticketId} />
       <input
         type="number"

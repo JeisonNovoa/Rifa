@@ -166,12 +166,50 @@ body {
   }
 }
 
+/* --- Diálogo de confirmación (reemplaza window.confirm) --------------- */
+.dialogo-rifa {
+  margin: auto;
+  width: min(92vw, 26rem);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  overflow: visible;
+}
+.dialogo-rifa::backdrop {
+  background: oklch(17% 0.045 262 / 0.6);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+.dialogo-rifa[open] {
+  animation: dialogo-entra 0.24s var(--ease-salida) both;
+}
+.dialogo-rifa[open]::backdrop {
+  animation: fundido 0.24s ease both;
+}
+@keyframes dialogo-entra {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fundido {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
   .animar-entrada,
-  .numero-pop {
+  .numero-pop,
+  .dialogo-rifa[open],
+  .dialogo-rifa[open]::backdrop {
     animation: none;
   }
 }

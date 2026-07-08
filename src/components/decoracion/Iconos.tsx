@@ -3,7 +3,7 @@
  * Trazos redondeados de 1.8 para que combinen con la tipografía del cartel.
  */
 
-interface IconoProps {
+export interface IconoProps {
   className?: string;
 }
 
@@ -93,6 +93,99 @@ export function IconoFlechaAbajo({ className }: IconoProps) {
   return (
     <Lienzo className={className}>
       <path d="M12 5v13m0 0-5-5m5 5 5-5" />
+    </Lienzo>
+  );
+}
+
+/** Flecha hacia la izquierda (volver atrás) */
+export function IconoAtras({ className }: IconoProps) {
+  return (
+    <Lienzo className={className}>
+      <path d="M19 12H5m0 0 6-6m-6 6 6 6" />
+    </Lienzo>
+  );
+}
+
+/** Compartir (nodos conectados) */
+export function IconoCompartir({ className }: IconoProps) {
+  return (
+    <Lienzo className={className}>
+      <circle cx="18" cy="5" r="2.5" />
+      <circle cx="6" cy="12" r="2.5" />
+      <circle cx="18" cy="19" r="2.5" />
+      <path d="M8.2 10.8 15.8 6.2M8.2 13.2l7.6 4.6" />
+    </Lienzo>
+  );
+}
+
+/** Enlace / cadena */
+export function IconoEnlace({ className }: IconoProps) {
+  return (
+    <Lienzo className={className}>
+      <path d="M9.5 14.5 14.5 9.5" />
+      <path d="M8 12 6 14a3 3 0 0 0 4.2 4.2L12 16.5M16 12l2-2a3 3 0 0 0-4.2-4.2L12 7.5" />
+    </Lienzo>
+  );
+}
+
+/** Panel / resumen (medidor) */
+export function IconoResumen({ className }: IconoProps) {
+  return (
+    <Lienzo className={className}>
+      <path d="M4 13a8 8 0 0 1 16 0" />
+      <path d="M12 13l3-3" />
+      <path d="M4 13v3.5h16V13" />
+    </Lienzo>
+  );
+}
+
+/** Cuadrícula de números */
+export function IconoCuadricula({ className }: IconoProps) {
+  return (
+    <Lienzo className={className}>
+      <rect x="4" y="4" width="7" height="7" rx="1.5" />
+      <rect x="13" y="4" width="7" height="7" rx="1.5" />
+      <rect x="4" y="13" width="7" height="7" rx="1.5" />
+      <rect x="13" y="13" width="7" height="7" rx="1.5" />
+    </Lienzo>
+  );
+}
+
+/** Engranaje (configuración) */
+export function IconoEngranaje({ className }: IconoProps) {
+  return (
+    <Lienzo className={className}>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
+    </Lienzo>
+  );
+}
+
+/** Salir (puerta con flecha) */
+export function IconoSalir({ className }: IconoProps) {
+  return (
+    <Lienzo className={className}>
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <path d="M16 17l5-5-5-5M21 12H9" />
+    </Lienzo>
+  );
+}
+
+/** Enlace externo (abre en otra pestaña) */
+export function IconoExterno({ className }: IconoProps) {
+  return (
+    <Lienzo className={className}>
+      <path d="M14 4h6v6M20 4l-9 9M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4" />
+    </Lienzo>
+  );
+}
+
+/** Signo de alerta (para confirmaciones delicadas) */
+export function IconoAlerta({ className }: IconoProps) {
+  return (
+    <Lienzo className={className}>
+      <path d="M12 3 2.5 20h19L12 3Z" />
+      <path d="M12 9.5v4.5M12 17.2v.1" />
     </Lienzo>
   );
 }

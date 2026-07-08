@@ -1,13 +1,15 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { IconoWhatsApp } from "@/components/decoracion/Iconos";
+import { IconoListo, IconoWhatsApp } from "@/components/decoracion/Iconos";
 import {
   accionConfirmarAbono,
   accionRechazarAbono,
   type EstadoAdmin,
 } from "@/lib/acciones/admin";
 import { dosDigitos, formatearPesos } from "@/lib/formato";
+import { DialogoConfirmar } from "./DialogoConfirmar";
+import { usarConfirmacion } from "./usarConfirmacion";
 
 interface TarjetaPendienteProps {
   abonoId: string;
@@ -144,20 +146,18 @@ function FormularioConfirmarAbono({
     ESTADO_INICIAL
   );
   const [monto, setMonto] = useState(montoDeclarado);
+  const conf = usarConfirmacion();
 
   return (
-    <form
-      action={enviar}
-      onSubmit={(evento) => {
-        if (
-          !window.confirm(
-            `¿Confirmar que llegaron ${formatearPesos(monto)} a tu Nequi? Revisa tu app primero.`
-          )
-        ) {
-          evento.preventDefault();
-        }
-      }}
-    >
+    <form ref={conf.formRef} action={enviar} onSubmit={conf.alEnviar}>
+      <DialogoConfirmar
+        abierto={conf.abierto}
+        titulo="Confirmar abono"
+        mensaje={`¿Confirmar que llegaron ${formatearPesos(monto)} a tu Nequi? Revisa tu app primero.`}
+        textoConfirmar="Sí, confirmar"
+        onConfirmar={conf.confirmar}
+        onCancelar={conf.cancelar}
+      />
       <input type="hidden" name="abonoId" value={abonoId} />
       <div className="flex items-center gap-2">
         <input
@@ -206,19 +206,28 @@ function FormularioRechazoAbono({
     accionRechazarAbono,
     ESTADO_INICIAL
   );
+  const conf = usarConfirmacion();
+  const mensajeRechazo =
+    totalPrevio === 0
+      ? `¿Rechazar este primer pago del ${dosDigitos(numero)}? El número quedará LIBRE y los datos del comprador se borran (el historial se conserva).`
+      : `¿Rechazar este abono del ${dosDigitos(numero)}? El número sigue apartado con lo ya confirmado.`;
 
   return (
     <form
+      ref={conf.formRef}
       action={enviar}
       className="mt-2 max-w-sm"
-      onSubmit={(evento) => {
-        const mensaje =
-          totalPrevio === 0
-            ? `¿Rechazar este primer pago del ${dosDigitos(numero)}? El número quedará LIBRE y los datos del comprador se borran (el historial se conserva).`
-            : `¿Rechazar este abono del ${dosDigitos(numero)}? El número sigue apartado con lo ya confirmado.`;
-        if (!window.confirm(mensaje)) evento.preventDefault();
-      }}
+      onSubmit={conf.alEnviar}
     >
+      <DialogoConfirmar
+        abierto={conf.abierto}
+        titulo={`Rechazar abono · N.º ${dosDigitos(numero)}`}
+        mensaje={mensajeRechazo}
+        textoConfirmar="Sí, rechazar"
+        variante="peligro"
+        onConfirmar={conf.confirmar}
+        onCancelar={conf.cancelar}
+      />
       <input type="hidden" name="abonoId" value={abonoId} />
       <input
         type="text"

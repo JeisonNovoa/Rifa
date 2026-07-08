@@ -1,6 +1,7 @@
 import { IconoWhatsApp } from "@/components/decoracion/Iconos";
 import { RutaAvion } from "@/components/decoracion/RutaAvion";
 import { AnuncioGanador } from "@/components/rifa/AnuncioGanador";
+import { MisBoletas } from "@/components/rifa/MisBoletas";
 import { FRASE_FOOTER, TEXTO_LEGAL, WHATSAPP_CONTACTO } from "@/lib/contenido";
 import { ComoFunciona } from "@/components/rifa/ComoFunciona";
 import { Destinos } from "@/components/rifa/Destinos";
@@ -70,6 +71,7 @@ export default async function PaginaRifa() {
                   Escoge tu <span className="trazo-dorado">número</span> de la
                   suerte
                 </h2>
+                <MisBoletas />
                 <div className="mt-6">
                   <TableroNumeros
                     inicial={tablero}

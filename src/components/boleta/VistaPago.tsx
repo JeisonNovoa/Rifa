@@ -1,10 +1,8 @@
-import { BotonCopiar } from "@/components/boleta/BotonCopiar";
 import { CuentaRegresiva } from "@/components/boleta/CuentaRegresiva";
 import { DatosPago } from "@/components/boleta/DatosPago";
 import { FormularioComprobante } from "@/components/boleta/FormularioComprobante";
-import { IconoWhatsApp } from "@/components/decoracion/Iconos";
+import { GuardarBoleta } from "@/components/boleta/GuardarBoleta";
 import { ABONO_MINIMO_PREDETERMINADO } from "@/lib/constants";
-import { WHATSAPP_CONTACTO } from "@/lib/contenido";
 import type { BoletaComprador } from "@/lib/datos/boleta";
 import { dosDigitos, formatearFechaHora, formatearPesos } from "@/lib/formato";
 import type { RifaPublica } from "@/lib/types";
@@ -77,36 +75,21 @@ export function VistaPago({ boleta, rifa, token }: VistaPagoProps) {
         className="mt-8"
       />
 
-      <GuardaEnlace className="mt-8" />
+      <GuardaEnlace numero={boleta.numero} className="mt-8" />
     </section>
   );
 }
 
-/** Recordatorio para no perder la boleta (no hay cuentas de usuario). */
-export function GuardaEnlace({ className = "" }: { className?: string }) {
-  return (
-    <div
-      className={`rounded-xl border border-noche-800 bg-noche-900/60 p-4 ${className}`}
-    >
-      <p className="text-sm font-semibold text-crema-50">
-        Guarda este enlace: es tu boleta digital
-      </p>
-      <p className="mt-1 text-sm leading-relaxed text-noche-300">
-        Con él vuelves aquí cuando quieras para abonar, subir comprobantes o
-        ver el estado de tu número.
-      </p>
-      <div className="mt-3 flex flex-wrap items-center gap-3">
-        <BotonCopiar etiqueta="Copiar mi enlace" apariencia="oscura" />
-        <a
-          href={`https://wa.me/57${WHATSAPP_CONTACTO}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-1.5 text-sm text-noche-300 underline decoration-noche-600 underline-offset-4 transition-colors hover:text-crema-50"
-        >
-          <IconoWhatsApp className="h-4 w-4" />
-          ¿Dudas? Escríbenos
-        </a>
-      </div>
-    </div>
-  );
+/**
+ * Recordatorio para no perder la boleta. Reexporta el bloque destacado
+ * GuardarBoleta (guarda en el dispositivo + compartir por WhatsApp).
+ */
+export function GuardaEnlace({
+  numero,
+  className = "",
+}: {
+  numero: number;
+  className?: string;
+}) {
+  return <GuardarBoleta numero={numero} className={className} />;
 }

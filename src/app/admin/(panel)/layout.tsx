@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
+import { NavAdmin } from "@/components/admin/NavAdmin";
+import { IconoSalir } from "@/components/decoracion/Iconos";
+import { SelloRifa } from "@/components/decoracion/SelloRifa";
 import { accionCerrarSesion } from "@/lib/acciones/admin";
 import { obtenerAdminActual } from "@/lib/auth-admin";
 
@@ -16,40 +18,26 @@ export default async function LayoutPanel({
 
   return (
     <div className="min-h-dvh">
-      <header className="border-b border-noche-800 bg-noche-900/60">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-6 gap-y-2 px-5 py-4">
-          <p className="font-titulo text-lg text-crema-50">
-            Panel · <span className="text-dorado-400">Viaja por Colombia</span>
-          </p>
-          <nav className="flex flex-wrap gap-x-4 gap-y-1 text-sm font-medium text-noche-300">
-            <Link href="/admin" className="transition-colors hover:text-crema-50">
-              Resumen
-            </Link>
-            <Link
-              href="/admin/numeros"
-              className="transition-colors hover:text-crema-50"
-            >
-              Números
-            </Link>
-            <Link
-              href="/admin/configuracion"
-              className="transition-colors hover:text-crema-50"
-            >
-              Configuración
-            </Link>
-            <Link
-              href="/"
-              target="_blank"
-              className="transition-colors hover:text-crema-50"
-            >
-              Ver página ↗
-            </Link>
-          </nav>
+      <header className="sticky top-0 z-40 border-b border-noche-800 bg-noche-950/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-5 gap-y-3 px-5 py-3">
+          <div className="flex items-center gap-2.5">
+            <SelloRifa className="w-9 text-dorado-400" />
+            <p className="font-titulo text-base leading-tight text-crema-50">
+              Panel ·{" "}
+              <span className="text-dorado-400">Viaja por Colombia</span>
+            </p>
+          </div>
+
+          <div className="order-last w-full sm:order-none sm:w-auto">
+            <NavAdmin />
+          </div>
+
           <form action={accionCerrarSesion} className="ml-auto">
             <button
               type="submit"
-              className="text-sm font-medium text-noche-400 transition-colors hover:text-crema-50"
+              className="inline-flex items-center gap-1.5 rounded-full border border-noche-700 px-3.5 py-1.5 text-sm font-medium text-noche-300 transition-colors hover:border-rojo-500/50 hover:text-rojo-400"
             >
+              <IconoSalir className="h-4 w-4" />
               Salir
             </button>
           </form>

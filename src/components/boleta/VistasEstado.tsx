@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { IconoBoleto } from "@/components/decoracion/Iconos";
 import { FormularioComprobante } from "@/components/boleta/FormularioComprobante";
 import { GuardaEnlace } from "@/components/boleta/VistaPago";
 import type { BoletaComprador } from "@/lib/datos/boleta";
@@ -69,7 +70,7 @@ export function VistaEnRevision({ boleta, rifa, token }: VistaConBoletaProps) {
         className="mt-8"
       />
 
-      <GuardaEnlace className="mt-8" />
+      <GuardaEnlace numero={boleta.numero} className="mt-8" />
       <p className="mt-6 text-xs text-noche-400">
         Rifa {rifa.nombre} · sorteo {formatearFechaLarga(rifa.fecha_sorteo).toLowerCase()}.
       </p>
@@ -107,7 +108,7 @@ export function VistaVendida({ boleta, rifa }: Omit<VistaConBoletaProps, "token"
         <div className="perforado" aria-hidden="true" />
       </div>
 
-      <GuardaEnlace className="mt-8" />
+      <GuardaEnlace numero={boleta.numero} className="mt-8" />
     </section>
   );
 }
@@ -127,6 +128,7 @@ export function VistaExpirada({ numero }: { numero: number }) {
         apartarlo de nuevo antes de que otra persona lo tome.
       </p>
       <Link href="/#numeros" className="btn-dorado mt-6">
+        <IconoBoleto className="h-5 w-5" />
         Volver al tablero
       </Link>
     </section>
@@ -148,6 +150,7 @@ export function VistaInvalida() {
         número se liberó. Tranquilo: puedes escoger tu número otra vez.
       </p>
       <Link href="/#numeros" className="btn-dorado mt-6">
+        <IconoBoleto className="h-5 w-5" />
         Ir al tablero
       </Link>
     </section>

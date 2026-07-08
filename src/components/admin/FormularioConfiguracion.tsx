@@ -8,6 +8,8 @@ import {
   type EstadoAdmin,
 } from "@/lib/acciones/admin";
 import type { RifaPublica } from "@/lib/types";
+import { DialogoConfirmar } from "./DialogoConfirmar";
+import { usarConfirmacion } from "./usarConfirmacion";
 
 interface FormularioConfiguracionProps {
   rifa: RifaPublica;
@@ -136,6 +138,7 @@ function GestionQr({ rifa }: { rifa: RifaPublica }) {
     accionQuitarQr,
     ESTADO_INICIAL
   );
+  const confQuitar = usarConfirmacion();
 
   return (
     <section className="rounded-2xl border border-noche-800 bg-noche-900/50 p-5">
@@ -198,13 +201,19 @@ function GestionQr({ rifa }: { rifa: RifaPublica }) {
 
           {rifa.nequi_qr_url && (
             <form
+              ref={confQuitar.formRef}
               action={quitarQr}
-              onSubmit={(evento) => {
-                if (!window.confirm("¿Quitar el QR de la pantalla de pago?")) {
-                  evento.preventDefault();
-                }
-              }}
+              onSubmit={confQuitar.alEnviar}
             >
+              <DialogoConfirmar
+                abierto={confQuitar.abierto}
+                titulo="Quitar el QR"
+                mensaje="¿Quitar el QR de la pantalla de pago? Podrás subir otro cuando quieras."
+                textoConfirmar="Sí, quitar"
+                variante="peligro"
+                onConfirmar={confQuitar.confirmar}
+                onCancelar={confQuitar.cancelar}
+              />
               <input type="hidden" name="raffleId" value={rifa.id} />
               <button
                 type="submit"

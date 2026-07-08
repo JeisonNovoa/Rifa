@@ -108,7 +108,7 @@ export function VistaAbonado({ boleta, rifa, token }: VistaAbonadoProps) {
         </div>
       )}
 
-      <GuardaEnlace className="mt-8" />
+      <GuardaEnlace numero={boleta.numero} className="mt-8" />
     </section>
   );
 }

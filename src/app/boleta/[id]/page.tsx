@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { IconoAtras } from "@/components/decoracion/Iconos";
 import { SelloRifa } from "@/components/decoracion/SelloRifa";
 import { VistaAbonado } from "@/components/boleta/VistaAbonado";
 import { VistaPago } from "@/components/boleta/VistaPago";
@@ -40,9 +41,10 @@ export default async function PaginaBoleta({
           <SelloRifa className="w-14 -rotate-6 text-dorado-400" />
           <Link
             href="/#numeros"
-            className="text-sm font-medium text-noche-300 underline decoration-noche-600 underline-offset-4 transition-colors hover:text-crema-50"
+            className="inline-flex items-center gap-1.5 rounded-full border border-noche-700 px-3.5 py-1.5 text-sm font-medium text-noche-300 transition-colors hover:border-dorado-400 hover:text-crema-50"
           >
-            ← Volver al tablero
+            <IconoAtras className="h-4 w-4" />
+            Volver al tablero
           </Link>
         </div>
         {await resolverContenido(id, token)}
