@@ -28,7 +28,10 @@ export function TableroNumeros({
     () => ({
       disponibles: casillas.filter((c) => c.estado === "disponible").length,
       apartados: casillas.filter(
-        (c) => c.estado === "reservado" || c.estado === "en_revision"
+        (c) =>
+          c.estado === "reservado" ||
+          c.estado === "en_revision" ||
+          c.estado === "abonado"
       ).length,
       vendidos: casillas.filter((c) => c.estado === "vendido").length,
     }),

@@ -86,6 +86,21 @@ function DatosDePago({ rifa }: { rifa: RifaPublica }) {
           />
         </label>
 
+        <label className="block">
+          <span className={ETIQUETA}>Abono mínimo para apartar ($)</span>
+          <input
+            name="abonoMinimo"
+            defaultValue={rifa.abono_minimo ?? 20000}
+            type="number"
+            required
+            min={1000}
+            max={60000}
+            step={1000}
+            disabled={pendiente}
+            className={ESTILO_INPUT}
+          />
+        </label>
+
         <button
           type="submit"
           disabled={pendiente}

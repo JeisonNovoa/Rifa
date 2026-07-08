@@ -1,32 +1,41 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { IconoWhatsApp } from "@/components/decoracion/Iconos";
 import {
-  accionConfirmarPago,
-  accionRechazarPago,
+  accionConfirmarAbono,
+  accionRechazarAbono,
   type EstadoAdmin,
 } from "@/lib/acciones/admin";
-import { dosDigitos } from "@/lib/formato";
-import { BotonAccion } from "./BotonAccion";
+import { dosDigitos, formatearPesos } from "@/lib/formato";
 
 interface TarjetaPendienteProps {
-  ticketId: string;
+  abonoId: string;
   numero: number;
   nombre: string | null;
   whatsapp: string | null;
+  /** Lo que la persona DICE que pagó (el admin puede corregirlo) */
+  montoDeclarado: number;
+  /** Lo que ya tenía confirmado antes de este abono */
+  totalPrevio: number;
+  precio: number;
   urlComprobante: string | null;
-  actualizadoHace: string;
+  subidoHace: string;
 }
 
-/** Boleta crema con un pago pendiente de revisión y sus acciones. */
+const ESTADO_INICIAL: EstadoAdmin = {};
+
+/** Boleta crema con un ABONO pendiente de revisión y sus acciones. */
 export function TarjetaPendiente({
-  ticketId,
+  abonoId,
   numero,
   nombre,
   whatsapp,
+  montoDeclarado,
+  totalPrevio,
+  precio,
   urlComprobante,
-  actualizadoHace,
+  subidoHace,
 }: TarjetaPendienteProps) {
   return (
     <article className="overflow-hidden rounded-2xl bg-crema-50 text-noche-900 shadow-lg shadow-noche-950/40">
@@ -40,7 +49,7 @@ export function TarjetaPendiente({
           <p className="font-titulo text-4xl leading-none text-rojo-500">
             {dosDigitos(numero)}
           </p>
-          <p className="mt-2 text-[11px] text-noche-900/50">{actualizadoHace}</p>
+          <p className="mt-2 text-[11px] text-noche-900/50">{subidoHace}</p>
         </div>
 
         <div className="min-w-0 flex-1">
@@ -56,6 +65,23 @@ export function TarjetaPendiente({
               {whatsapp}
             </a>
           )}
+
+          {/* El dato clave: cuánto dice haber pagado */}
+          <p className="mt-2 text-sm text-noche-900/70">
+            Dice haber pagado{" "}
+            <strong className="font-titulo text-lg text-rojo-500">
+              {formatearPesos(montoDeclarado)}
+            </strong>
+            {totalPrevio > 0 && (
+              <> · ya tenía {formatearPesos(totalPrevio)} confirmados</>
+            )}
+            . Si es correcto, quedaría en{" "}
+            <strong className="font-semibold">
+              {formatearPesos(totalPrevio + montoDeclarado)}
+            </strong>{" "}
+            de {formatearPesos(precio)}{" "}
+            {totalPrevio + montoDeclarado >= precio ? "→ VENDIDO ✓" : "→ abonado"}
+          </p>
 
           {urlComprobante ? (
             <a
@@ -77,25 +103,25 @@ export function TarjetaPendiente({
             </a>
           ) : (
             <p className="mt-3 text-xs text-noche-900/50">
-              Sin archivo adjunto (¿te llegó el comprobante por WhatsApp?).
+              Sin archivo adjunto (abono registrado a mano o comprobante por
+              WhatsApp).
             </p>
           )}
 
           <div className="mt-4 flex flex-wrap items-start gap-3">
-            <BotonAccion
-              accion={accionConfirmarPago}
-              campos={{ ticketId }}
-              etiqueta="Confirmar pago"
-              etiquetaPendiente="Confirmando…"
-              variante="dorado"
-              confirmacion={`¿Confirmar el pago del número ${dosDigitos(numero)}? Verifica primero que la plata SÍ llegó a tu Nequi.`}
+            <FormularioConfirmarAbono
+              abonoId={abonoId}
+              montoDeclarado={montoDeclarado}
             />
-
             <details>
               <summary className="cursor-pointer list-none rounded-lg border border-noche-900/20 px-4 py-2 text-sm font-semibold text-noche-900/60 transition-colors hover:bg-noche-900/5">
                 Rechazar…
               </summary>
-              <FormularioRechazo ticketId={ticketId} numero={numero} />
+              <FormularioRechazoAbono
+                abonoId={abonoId}
+                numero={numero}
+                totalPrevio={totalPrevio}
+              />
             </details>
           </div>
         </div>
@@ -105,18 +131,79 @@ export function TarjetaPendiente({
   );
 }
 
-const ESTADO_INICIAL: EstadoAdmin = {};
-
-/** Formulario auto-contenido: motivo opcional + rechazo con confirmación. */
-function FormularioRechazo({
-  ticketId,
-  numero,
+/** Confirmación con monto editable: la verdad es lo que llegó al Nequi. */
+function FormularioConfirmarAbono({
+  abonoId,
+  montoDeclarado,
 }: {
-  ticketId: string;
-  numero: number;
+  abonoId: string;
+  montoDeclarado: number;
 }) {
   const [estado, enviar, pendiente] = useActionState(
-    accionRechazarPago,
+    accionConfirmarAbono,
+    ESTADO_INICIAL
+  );
+  const [monto, setMonto] = useState(montoDeclarado);
+
+  return (
+    <form
+      action={enviar}
+      onSubmit={(evento) => {
+        if (
+          !window.confirm(
+            `¿Confirmar que llegaron ${formatearPesos(monto)} a tu Nequi? Revisa tu app primero.`
+          )
+        ) {
+          evento.preventDefault();
+        }
+      }}
+    >
+      <input type="hidden" name="abonoId" value={abonoId} />
+      <div className="flex items-center gap-2">
+        <input
+          type="number"
+          name="monto"
+          min={1000}
+          step={1000}
+          value={monto}
+          onChange={(evento) => setMonto(Number(evento.target.value))}
+          disabled={pendiente}
+          aria-label="Monto real recibido"
+          className="w-28 rounded-lg border border-noche-900/25 bg-white/70 px-3 py-2 text-sm text-noche-900 focus:border-noche-900/50 focus:outline-none"
+        />
+        <button
+          type="submit"
+          disabled={pendiente}
+          className="btn-dorado !px-4 !py-2 text-sm disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {pendiente ? "Confirmando…" : "Confirmar abono"}
+        </button>
+      </div>
+      {estado.error && (
+        <p role="alert" className="mt-1.5 text-xs font-medium text-rojo-500">
+          {estado.error}
+        </p>
+      )}
+      {estado.exito && (
+        <p className="mt-1.5 text-xs font-medium text-noche-900/70">
+          {estado.exito}
+        </p>
+      )}
+    </form>
+  );
+}
+
+function FormularioRechazoAbono({
+  abonoId,
+  numero,
+  totalPrevio,
+}: {
+  abonoId: string;
+  numero: number;
+  totalPrevio: number;
+}) {
+  const [estado, enviar, pendiente] = useActionState(
+    accionRechazarAbono,
     ESTADO_INICIAL
   );
 
@@ -125,11 +212,14 @@ function FormularioRechazo({
       action={enviar}
       className="mt-2 max-w-sm"
       onSubmit={(evento) => {
-        const mensaje = `¿Rechazar el pago del ${dosDigitos(numero)}? El número quedará libre y los datos del comprador se borran (el historial se conserva).`;
+        const mensaje =
+          totalPrevio === 0
+            ? `¿Rechazar este primer pago del ${dosDigitos(numero)}? El número quedará LIBRE y los datos del comprador se borran (el historial se conserva).`
+            : `¿Rechazar este abono del ${dosDigitos(numero)}? El número sigue apartado con lo ya confirmado.`;
         if (!window.confirm(mensaje)) evento.preventDefault();
       }}
     >
-      <input type="hidden" name="ticketId" value={ticketId} />
+      <input type="hidden" name="abonoId" value={abonoId} />
       <input
         type="text"
         name="motivo"
@@ -143,7 +233,7 @@ function FormularioRechazo({
         disabled={pendiente}
         className="mt-2 rounded-lg border border-rojo-500/50 px-4 py-2 text-sm font-semibold text-rojo-500 transition-colors hover:bg-rojo-500/10 disabled:opacity-60"
       >
-        {pendiente ? "Liberando…" : "Rechazar y liberar número"}
+        {pendiente ? "Rechazando…" : "Rechazar este abono"}
       </button>
       {estado.error && (
         <p role="alert" className="mt-1.5 text-xs font-medium text-rojo-500">

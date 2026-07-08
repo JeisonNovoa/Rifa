@@ -2,8 +2,11 @@ import { BotonCopiar } from "@/components/boleta/BotonCopiar";
 import { CuentaRegresiva } from "@/components/boleta/CuentaRegresiva";
 import { DatosPago } from "@/components/boleta/DatosPago";
 import { FormularioComprobante } from "@/components/boleta/FormularioComprobante";
+import { IconoWhatsApp } from "@/components/decoracion/Iconos";
+import { ABONO_MINIMO_PREDETERMINADO } from "@/lib/constants";
+import { WHATSAPP_CONTACTO } from "@/lib/contenido";
 import type { BoletaComprador } from "@/lib/datos/boleta";
-import { dosDigitos } from "@/lib/formato";
+import { dosDigitos, formatearFechaHora, formatearPesos } from "@/lib/formato";
 import type { RifaPublica } from "@/lib/types";
 
 interface VistaPagoProps {
@@ -12,8 +15,10 @@ interface VistaPagoProps {
   token: string;
 }
 
-/** Estado "reservado": instrucciones de pago + subida del comprobante. */
+/** Estado "reservado": primer pago (completo o abono) + subida del comprobante. */
 export function VistaPago({ boleta, rifa, token }: VistaPagoProps) {
+  const abonoMinimo = rifa.abono_minimo ?? ABONO_MINIMO_PREDETERMINADO;
+
   return (
     <section className="pt-10">
       <p className="font-titulo text-sm tracking-[0.35em] text-dorado-400">
@@ -37,11 +42,38 @@ export function VistaPago({ boleta, rifa, token }: VistaPagoProps) {
         <CuentaRegresiva hasta={boleta.reservado_hasta} className="mt-5" />
       )}
 
-      <DatosPago rifa={rifa} className="mt-8" />
+      {/* Las dos formas de pagar */}
+      <div className="mt-6 rounded-xl border border-dorado-500/30 bg-noche-900/50 p-4 text-sm leading-relaxed text-noche-300">
+        Puedes pagar la boleta{" "}
+        <strong className="font-semibold text-crema-50">
+          completa ({formatearPesos(rifa.precio_por_numero)})
+        </strong>{" "}
+        o apartarla desde{" "}
+        <strong className="font-semibold text-dorado-300">
+          {formatearPesos(abonoMinimo)}
+        </strong>{" "}
+        e ir abonando a tu ritmo.
+        {rifa.limite_pago && (
+          <>
+            {" "}
+            Plazo máximo:{" "}
+            <strong className="font-semibold text-crema-50">
+              {formatearFechaHora(rifa.limite_pago)}
+            </strong>
+            . Boleta que no esté 100% paga no juega.
+          </>
+        )}
+      </div>
+
+      <DatosPago rifa={rifa} className="mt-6" />
 
       <FormularioComprobante
         ticketId={boleta.ticket_id}
         token={token}
+        precio={rifa.precio_por_numero}
+        abonoMinimo={abonoMinimo}
+        restante={rifa.precio_por_numero - boleta.total_abonado}
+        esPrimerPago={boleta.total_abonado === 0}
         className="mt-8"
       />
 
@@ -60,14 +92,21 @@ export function GuardaEnlace({ className = "" }: { className?: string }) {
         Guarda este enlace: es tu boleta digital
       </p>
       <p className="mt-1 text-sm leading-relaxed text-noche-300">
-        Con él vuelves aquí cuando quieras para subir el comprobante o ver el
-        estado de tu número.
+        Con él vuelves aquí cuando quieras para abonar, subir comprobantes o
+        ver el estado de tu número.
       </p>
-      <BotonCopiar
-        etiqueta="Copiar mi enlace"
-        apariencia="oscura"
-        className="mt-3"
-      />
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <BotonCopiar etiqueta="Copiar mi enlace" apariencia="oscura" />
+        <a
+          href={`https://wa.me/57${WHATSAPP_CONTACTO}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 text-sm text-noche-300 underline decoration-noche-600 underline-offset-4 transition-colors hover:text-crema-50"
+        >
+          <IconoWhatsApp className="h-4 w-4" />
+          ¿Dudas? Escríbenos
+        </a>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,10 @@
 import { AVISOS_SEGURIDAD } from "@/lib/contenido";
-import { formatearFechaLarga } from "@/lib/formato";
+import { ABONO_MINIMO_PREDETERMINADO } from "@/lib/constants";
+import {
+  formatearFechaHora,
+  formatearFechaLarga,
+  formatearPesos,
+} from "@/lib/formato";
 import type { RifaPublica } from "@/lib/types";
 
 interface ComoFuncionaProps {
@@ -7,20 +12,26 @@ interface ComoFuncionaProps {
 }
 
 export function ComoFunciona({ rifa }: ComoFuncionaProps) {
+  const abonoMinimo = rifa.abono_minimo ?? ABONO_MINIMO_PREDETERMINADO;
   const pasos = [
     {
       titulo: "Escoge tu número",
-      descripcion: `Tócalo en el tablero y queda apartado ${rifa.minutos_reserva} minutos para ti.`,
+      descripcion: `Tócalo en el tablero y queda apartado ${rifa.minutos_reserva} minutos para hacer tu primer pago.`,
     },
     {
       titulo: "Paga por Nequi",
-      descripcion:
-        "Te mostramos la llave para pagar desde tu banco y subes el comprobante.",
+      descripcion: `Boleta completa (${formatearPesos(rifa.precio_por_numero)}) o apártala con mínimo ${formatearPesos(abonoMinimo)}. Sube el comprobante.`,
     },
     {
-      titulo: "¡Número asegurado!",
+      titulo: "Confirmamos tu pago",
       descripcion:
-        "Confirmamos tu pago y el número queda a tu nombre para el sorteo.",
+        "Verificamos la plata: si pagaste completo, el número queda VENDIDO; si abonaste, queda APARTADO a tu nombre sin límite de reserva.",
+    },
+    {
+      titulo: "Completa tu boleta",
+      descripcion: rifa.limite_pago
+        ? `Sigue abonando desde tu boleta digital cuando quieras, antes del ${formatearFechaHora(rifa.limite_pago)}. Boleta que no esté 100% paga no juega.`
+        : "Sigue abonando desde tu boleta digital hasta completar el valor. Boleta que no esté 100% paga no juega.",
     },
   ];
 

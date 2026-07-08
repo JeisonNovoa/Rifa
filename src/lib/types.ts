@@ -4,7 +4,12 @@
  * Convención: snake_case en campos que vienen de la base de datos.
  */
 
-export type TicketEstado = 'disponible' | 'reservado' | 'en_revision' | 'vendido';
+export type TicketEstado =
+  | 'disponible'
+  | 'reservado'
+  | 'en_revision'
+  | 'abonado' // apartado con abonos, sin completar el pago
+  | 'vendido';
 
 export type RifaEstado = 'activa' | 'cerrada';
 
@@ -22,6 +27,19 @@ export interface RifaPublica {
   nequi_numero: string | null;
   nequi_qr_url: string | null;
   minutos_reserva: number;
+  /** Monto mínimo del primer abono para apartar (regla del flyer: $20.000) */
+  abono_minimo: number;
+  /** Fecha y hora límite para completar el pago (ISO timestamp) */
+  limite_pago: string | null;
+}
+
+/** Un pago (o intento de pago) sobre una boleta */
+export interface Abono {
+  id: string;
+  monto: number;
+  estado: 'en_revision' | 'confirmado' | 'rechazado';
+  creado_en: string;
+  resuelto_en: string | null;
 }
 
 /** Fila de la vista pública `tablero` (una casilla del 00-99) */
@@ -43,7 +61,10 @@ export type CodigoErrorRpc =
   | 'ticket_no_existe'
   | 'token_invalido'
   | 'estado_invalido'
-  | 'reserva_expirada';
+  | 'reserva_expirada'
+  | 'monto_invalido'
+  | 'monto_menor_al_minimo'
+  | 'abono_no_existe';
 
 /** Respuesta de la RPC `reservar_numero` */
 export interface ResultadoReserva {

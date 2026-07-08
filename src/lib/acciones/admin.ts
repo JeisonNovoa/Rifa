@@ -9,7 +9,7 @@ import {
   MENSAJE_ERROR_GENERICO,
   QR_MAX_BYTES,
 } from '@/lib/constants';
-import { dosDigitos } from '@/lib/formato';
+import { dosDigitos, formatearPesos } from '@/lib/formato';
 import { crearClienteAdmin } from '@/lib/supabase/admin';
 import { crearClienteServidor } from '@/lib/supabase/server';
 import type { ResultadoTransicion } from '@/lib/types';
@@ -38,6 +38,9 @@ const MENSAJES_ADMIN: Record<string, string> = {
   rifa_no_activa: 'La rifa no está activa.',
   nombre_invalido: 'El nombre debe tener entre 2 y 80 caracteres.',
   whatsapp_invalido: 'El WhatsApp debe ser un celular de 10 dígitos (3XXXXXXXXX).',
+  monto_invalido:
+    'Monto inválido: no puede superar lo que falta para completar la boleta.',
+  abono_no_existe: 'No se encontró ese abono. Refresca la página.',
 };
 
 function mensajeAdmin(codigo: string | undefined): string {
@@ -104,31 +107,153 @@ export async function accionCerrarSesion(): Promise<void> {
 /* Gestión de pagos                                                    */
 /* ------------------------------------------------------------------ */
 
-export async function accionConfirmarPago(
+interface ResultadoAbono {
+  ok: boolean;
+  error?: string;
+  estado?: string;
+  total?: number;
+  numero?: number;
+  liberado?: boolean;
+}
+
+/** Confirma un abono con el monto REAL que llegó (el admin puede ajustarlo). */
+export async function accionConfirmarAbono(
+  _prev: EstadoAdmin,
+  formData: FormData
+): Promise<EstadoAdmin> {
+  const abonoId = String(formData.get('abonoId') ?? '');
+  const monto = Number.parseInt(String(formData.get('monto') ?? ''), 10);
+  if (!UUID_REGEX.test(abonoId)) return { error: MENSAJE_ERROR_GENERICO };
+  if (Number.isNaN(monto) || monto < 1000) {
+    return { error: 'El monto debe ser de mínimo $1.000.' };
+  }
+
+  const admin = await exigirAdmin();
+  try {
+    const { data, error } = await admin.rpc('confirmar_abono', {
+      p_abono_id: abonoId,
+      p_monto: monto,
+    });
+    if (error) {
+      console.error('confirmar_abono:', error.message);
+      return { error: MENSAJE_ERROR_GENERICO };
+    }
+    const resultado = data as ResultadoAbono;
+    if (!resultado.ok) return { error: mensajeAdmin(resultado.error) };
+
+    refrescarTodo();
+    const numero = dosDigitos(resultado.numero ?? 0);
+    return {
+      exito:
+        resultado.estado === 'vendido'
+          ? `✅ N.º ${numero} quedó VENDIDO (100% pago).`
+          : `✅ Abono confirmado: N.º ${numero} apartado con ${formatearPesos(resultado.total ?? monto)}.`,
+    };
+  } catch (error: unknown) {
+    console.error('accionConfirmarAbono:', error);
+    return { error: MENSAJE_ERROR_GENERICO };
+  }
+}
+
+/** Rechaza un abono. Si era el primer pago, el número se libera. */
+export async function accionRechazarAbono(
+  _prev: EstadoAdmin,
+  formData: FormData
+): Promise<EstadoAdmin> {
+  const abonoId = String(formData.get('abonoId') ?? '');
+  const motivo = String(formData.get('motivo') ?? '').trim() || null;
+  if (!UUID_REGEX.test(abonoId)) return { error: MENSAJE_ERROR_GENERICO };
+
+  const admin = await exigirAdmin();
+  try {
+    // Ruta del archivo ANTES de rechazar (el rechazo puede borrar la fila)
+    const { data: abono } = await admin
+      .from('abonos')
+      .select('comprobante_url')
+      .eq('id', abonoId)
+      .single();
+
+    const { data, error } = await admin.rpc('rechazar_abono', {
+      p_abono_id: abonoId,
+      p_motivo: motivo,
+    });
+    if (error) {
+      console.error('rechazar_abono:', error.message);
+      return { error: MENSAJE_ERROR_GENERICO };
+    }
+    const resultado = data as ResultadoAbono;
+    if (!resultado.ok) return { error: mensajeAdmin(resultado.error) };
+
+    if (abono?.comprobante_url) {
+      const { error: errorBorrado } = await admin.storage
+        .from('comprobantes')
+        .remove([abono.comprobante_url]);
+      if (errorBorrado) {
+        console.error('No se pudo borrar el comprobante:', errorBorrado.message);
+      }
+    }
+
+    refrescarTodo();
+    return {
+      exito: resultado.liberado
+        ? 'Abono rechazado: el número volvió a estar disponible.'
+        : 'Abono rechazado: el número sigue apartado con lo ya abonado.',
+    };
+  } catch (error: unknown) {
+    console.error('accionRechazarAbono:', error);
+    return { error: MENSAJE_ERROR_GENERICO };
+  }
+}
+
+/** Registra un abono en efectivo/WhatsApp sobre un número ya apartado. */
+export async function accionAbonoManual(
   _prev: EstadoAdmin,
   formData: FormData
 ): Promise<EstadoAdmin> {
   const ticketId = String(formData.get('ticketId') ?? '');
+  const monto = Number.parseInt(String(formData.get('monto') ?? ''), 10);
   if (!UUID_REGEX.test(ticketId)) return { error: MENSAJE_ERROR_GENERICO };
+  if (Number.isNaN(monto) || monto < 1000) {
+    return { error: 'El monto debe ser de mínimo $1.000.' };
+  }
 
   const admin = await exigirAdmin();
   try {
-    const { data, error } = await admin.rpc('confirmar_pago', {
-      p_ticket_id: ticketId,
-    });
-    if (error) {
-      console.error('confirmar_pago:', error.message);
+    // Se crea el abono y se confirma con la RPC (la matemática queda atómica).
+    const { data: abono, error: errorInsertar } = await admin
+      .from('abonos')
+      .insert({ ticket_id: ticketId, monto })
+      .select('id')
+      .single();
+    if (errorInsertar || !abono) {
+      console.error('abono manual (insert):', errorInsertar?.message);
       return { error: MENSAJE_ERROR_GENERICO };
     }
-    const resultado = data as ResultadoTransicion;
-    if (!resultado.ok) return { error: mensajeAdmin(resultado.error) };
+
+    const { data, error } = await admin.rpc('confirmar_abono', {
+      p_abono_id: abono.id,
+      p_monto: monto,
+    });
+    if (error || !(data as ResultadoAbono).ok) {
+      await admin.from('abonos').delete().eq('id', abono.id);
+      const codigo = (data as ResultadoAbono | null)?.error;
+      console.error('abono manual (confirmar):', error?.message ?? codigo);
+      return { error: mensajeAdmin(codigo) };
+    }
+
+    const resultado = data as ResultadoAbono;
+    refrescarTodo();
+    const numero = dosDigitos(resultado.numero ?? 0);
+    return {
+      exito:
+        resultado.estado === 'vendido'
+          ? `✅ N.º ${numero} quedó VENDIDO (completó el pago).`
+          : `✅ Abono registrado: N.º ${numero} va en ${formatearPesos(resultado.total ?? monto)}.`,
+    };
   } catch (error: unknown) {
-    console.error('accionConfirmarPago:', error);
+    console.error('accionAbonoManual:', error);
     return { error: MENSAJE_ERROR_GENERICO };
   }
-
-  refrescarTodo();
-  return { exito: '✅ Pago confirmado: el número quedó vendido.' };
 }
 
 export async function accionRechazarPago(
@@ -222,25 +347,41 @@ export async function accionVentaManual(
     if (campo === 'nombre') return { error: MENSAJES_ADMIN.nombre_invalido };
     return { error: 'Revisa el número: debe estar entre 00 y 99.' };
   }
+  const monto = Number.parseInt(String(formData.get('monto') ?? ''), 10);
+  if (Number.isNaN(monto) || monto < 1000) {
+    return { error: 'El monto recibido debe ser de mínimo $1.000.' };
+  }
 
   const admin = await exigirAdmin();
   try {
+    const { data: rifa } = await admin
+      .from('raffles')
+      .select('precio_por_numero')
+      .eq('id', parseo.data.raffleId)
+      .single();
+    const precio = rifa?.precio_por_numero ?? 0;
+    if (monto > precio) {
+      return { error: `El monto no puede superar el valor de la boleta (${formatearPesos(precio)}).` };
+    }
+
     // Limpia reservas vencidas para que un número "vencido" cuente como libre.
     await admin.rpc('liberar_expirados');
 
-    // Venta directa con actualización condicional (atómica): solo aplica si
-    // el número sigue disponible. Funciona incluso con la rifa cerrada:
+    // Registro directo con actualización condicional (atómica): solo aplica
+    // si el número sigue disponible. Funciona incluso con la rifa cerrada:
     // el admin siempre puede regularizar un pago atrasado.
     const token = crypto.randomUUID();
+    const completo = monto >= precio;
     const { data, error } = await admin
       .from('tickets')
       .update({
-        estado: 'vendido',
+        estado: completo ? 'vendido' : 'abonado',
         comprador_nombre: parseo.data.nombre,
         comprador_whatsapp: parseo.data.whatsapp,
         token_gestion: token,
+        total_abonado: monto,
         reservado_hasta: null,
-        confirmado_en: new Date().toISOString(),
+        confirmado_en: completo ? new Date().toISOString() : null,
       })
       .eq('raffle_id', parseo.data.raffleId)
       .eq('numero', parseo.data.numero)
@@ -252,13 +393,27 @@ export async function accionVentaManual(
       return { error: MENSAJES_ADMIN.numero_ocupado };
     }
 
+    const { error: errorAbono } = await admin.from('abonos').insert({
+      ticket_id: data.id,
+      monto,
+      estado: 'confirmado',
+      resuelto_en: new Date().toISOString(),
+    });
+    if (errorAbono) {
+      console.error('abono de venta manual:', errorAbono.message);
+    }
+
     const { error: errorAuditoria } = await admin.from('audit_log').insert({
       ticket_id: data.id,
       accion: 'venta_manual',
       estado_anterior: 'disponible',
-      estado_nuevo: 'vendido',
+      estado_nuevo: completo ? 'vendido' : 'abonado',
       actor: 'admin',
-      detalle: { nombre: parseo.data.nombre, whatsapp: parseo.data.whatsapp },
+      detalle: {
+        nombre: parseo.data.nombre,
+        whatsapp: parseo.data.whatsapp,
+        monto,
+      },
     });
     if (errorAuditoria) {
       console.error('auditoría de venta manual:', errorAuditoria.message);
@@ -266,7 +421,9 @@ export async function accionVentaManual(
 
     refrescarTodo();
     return {
-      exito: `✅ Número ${dosDigitos(parseo.data.numero)} vendido a ${parseo.data.nombre}.`,
+      exito: completo
+        ? `✅ Número ${dosDigitos(parseo.data.numero)} vendido a ${parseo.data.nombre} (100% pago).`
+        : `✅ Número ${dosDigitos(parseo.data.numero)} apartado para ${parseo.data.nombre} con ${formatearPesos(monto)} (debe ${formatearPesos(precio - monto)}).`,
       enlaceBoleta: `${await urlBase()}/boleta/${data.id}?t=${token}`,
     };
   } catch (error: unknown) {
@@ -279,6 +436,10 @@ export async function accionVentaManual(
 /* Revertir una venta (confirmada por error)                           */
 /* ------------------------------------------------------------------ */
 
+/**
+ * Deshace el ÚLTIMO abono confirmado de un número (confirmado por error):
+ * el abono vuelve a "en revisión" para decidir de nuevo, y el total se recalcula.
+ */
 export async function accionRevertirVenta(
   _prev: EstadoAdmin,
   formData: FormData
@@ -289,30 +450,61 @@ export async function accionRevertirVenta(
 
   const admin = await exigirAdmin();
   try {
-    // Update condicional: solo aplica si sigue vendido (evita carreras).
-    const { data, error } = await admin
+    const { data: ticket } = await admin
       .from('tickets')
-      .update({ estado: 'en_revision', confirmado_en: null })
+      .select('id, numero, estado, total_abonado')
       .eq('id', ticketId)
-      .eq('estado', 'vendido')
-      .select('id, numero, comprador_nombre, comprador_whatsapp')
       .single();
+    if (!ticket || (ticket.estado !== 'vendido' && ticket.estado !== 'abonado')) {
+      return { error: 'Solo se revierte un número vendido o abonado. Refresca la página.' };
+    }
 
-    if (error || !data) {
-      return { error: 'Solo se puede revertir un número vendido. Refresca la página.' };
+    const { data: abono } = await admin
+      .from('abonos')
+      .select('id, monto')
+      .eq('ticket_id', ticketId)
+      .eq('estado', 'confirmado')
+      .order('resuelto_en', { ascending: false })
+      .limit(1)
+      .single();
+    if (!abono) {
+      return { error: 'Este número no tiene abonos confirmados para revertir.' };
+    }
+
+    const nuevoTotal = (ticket.total_abonado ?? 0) - abono.monto;
+    if (nuevoTotal < 0) return { error: MENSAJE_ERROR_GENERICO };
+    const nuevoEstado = nuevoTotal > 0 ? 'abonado' : 'en_revision';
+
+    const { error: errorAbono } = await admin
+      .from('abonos')
+      .update({ estado: 'en_revision', resuelto_en: null })
+      .eq('id', abono.id)
+      .eq('estado', 'confirmado');
+    if (errorAbono) {
+      console.error('revertir (abono):', errorAbono.message);
+      return { error: MENSAJE_ERROR_GENERICO };
+    }
+
+    const { error: errorTicket } = await admin
+      .from('tickets')
+      .update({
+        total_abonado: nuevoTotal,
+        estado: nuevoEstado,
+        confirmado_en: null,
+      })
+      .eq('id', ticketId);
+    if (errorTicket) {
+      console.error('revertir (ticket):', errorTicket.message);
+      return { error: MENSAJE_ERROR_GENERICO };
     }
 
     const { error: errorAuditoria } = await admin.from('audit_log').insert({
-      ticket_id: data.id,
-      accion: 'venta_revertida',
-      estado_anterior: 'vendido',
-      estado_nuevo: 'en_revision',
+      ticket_id: ticket.id,
+      accion: 'abono_revertido',
+      estado_anterior: ticket.estado,
+      estado_nuevo: nuevoEstado,
       actor: 'admin',
-      detalle: {
-        motivo,
-        nombre: data.comprador_nombre,
-        whatsapp: data.comprador_whatsapp,
-      },
+      detalle: { motivo, monto: abono.monto, nuevo_total: nuevoTotal },
     });
     if (errorAuditoria) {
       console.error('auditoría de reversa:', errorAuditoria.message);
@@ -320,7 +512,7 @@ export async function accionRevertirVenta(
 
     refrescarTodo();
     return {
-      exito: `Venta del ${dosDigitos(data.numero as number)} revertida: volvió a "en revisión". Desde ahí puedes confirmarla o rechazarla.`,
+      exito: `↩️ Último abono (${formatearPesos(abono.monto)}) del N.º ${dosDigitos(ticket.numero as number)} devuelto a revisión. Confírmalo con el monto correcto o recházalo.`,
     };
   } catch (error: unknown) {
     console.error('accionRevertirVenta:', error);
@@ -341,11 +533,15 @@ export async function accionGuardarConfiguracion(
     llave: formData.get('llave'),
     numeroNequi: formData.get('numeroNequi'),
     minutos: formData.get('minutos'),
+    abonoMinimo: formData.get('abonoMinimo'),
   });
   if (!parseo.success) {
     const campo = parseo.error.issues[0]?.path[0];
     if (campo === 'minutos') {
       return { error: 'Los minutos de reserva deben estar entre 5 y 120.' };
+    }
+    if (campo === 'abonoMinimo') {
+      return { error: 'El abono mínimo debe estar entre $1.000 y $60.000.' };
     }
     return { error: 'Revisa los datos del formulario.' };
   }
@@ -363,6 +559,7 @@ export async function accionGuardarConfiguracion(
         nequi_llave: parseo.data.llave || null,
         nequi_numero: numeroNequi || null,
         minutos_reserva: parseo.data.minutos,
+        abono_minimo: parseo.data.abonoMinimo,
       })
       .eq('id', parseo.data.raffleId);
     if (error) {

@@ -101,11 +101,14 @@ export async function accionSubirComprobante(
   const parseo = esquemaComprobante.safeParse({
     ticketId: formData.get('ticketId'),
     token: formData.get('token'),
+    monto: formData.get('monto'),
   });
   if (!parseo.success) {
+    const campo = parseo.error.issues[0]?.path[0];
+    if (campo === 'monto') return { error: MENSAJES_ERROR.monto_invalido };
     return { error: MENSAJES_ERROR.token_invalido };
   }
-  const { ticketId, token } = parseo.data;
+  const { ticketId, token, monto } = parseo.data;
 
   const archivo = formData.get('archivo');
   if (!(archivo instanceof File) || archivo.size === 0) {
@@ -135,6 +138,7 @@ export async function accionSubirComprobante(
       p_ticket_id: ticketId,
       p_token: token,
       p_comprobante_url: ruta,
+      p_monto: monto,
     });
 
     if (error || !(data as ResultadoTransicion).ok) {

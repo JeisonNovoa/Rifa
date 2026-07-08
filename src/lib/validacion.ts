@@ -30,6 +30,7 @@ export const esquemaReserva = z.object({
 export const esquemaComprobante = z.object({
   ticketId: z.string().regex(UUID_REGEX),
   token: z.string().regex(UUID_REGEX),
+  monto: z.coerce.number().int().min(1000),
 });
 
 export const esquemaConfiguracion = z.object({
@@ -37,4 +38,5 @@ export const esquemaConfiguracion = z.object({
   llave: z.string().trim().max(60),
   numeroNequi: z.string().trim().max(20),
   minutos: z.coerce.number().int().min(5).max(120),
+  abonoMinimo: z.coerce.number().int().min(1000).max(60000),
 });

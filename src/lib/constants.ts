@@ -32,7 +32,13 @@ export const MENSAJES_ERROR: Record<CodigoErrorRpc, string> = {
   token_invalido: 'Este enlace de reserva no es válido. Vuelve al tablero e intenta de nuevo.',
   estado_invalido: 'Este número ya cambió de estado. Refresca la página.',
   reserva_expirada: 'Tu reserva venció. El número quedó libre: vuelve a escogerlo si sigue disponible.',
+  monto_invalido: 'Revisa el valor del abono: no puede superar lo que falta por pagar.',
+  monto_menor_al_minimo: 'El primer abono debe ser de mínimo $20.000 para apartar tu número.',
+  abono_no_existe: 'No encontramos ese abono. Refresca la página.',
 };
+
+/** Respaldo si la app corre antes de aplicar la migración de abonos */
+export const ABONO_MINIMO_PREDETERMINADO = 20000;
 
 /** Mensajes de validación del comprobante (cliente y servidor usan los mismos) */
 export const MENSAJES_COMPROBANTE = {

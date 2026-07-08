@@ -6,6 +6,7 @@ import { BotonCopiar } from "@/components/boleta/BotonCopiar";
 
 interface FormularioVentaManualProps {
   raffleId: string;
+  precio: number;
 }
 
 const ESTADO_INICIAL: EstadoAdmin = {};
@@ -18,7 +19,10 @@ const ESTILO_INPUT =
  * pagos que llegaron tarde (la reserva venció pero la plata sí entró).
  * Reserva + confirma en un solo paso y entrega el enlace de la boleta.
  */
-export function FormularioVentaManual({ raffleId }: FormularioVentaManualProps) {
+export function FormularioVentaManual({
+  raffleId,
+  precio,
+}: FormularioVentaManualProps) {
   const [estado, enviar, pendiente] = useActionState(
     accionVentaManual,
     ESTADO_INICIAL
@@ -26,16 +30,16 @@ export function FormularioVentaManual({ raffleId }: FormularioVentaManualProps) 
 
   return (
     <section className="rounded-2xl border border-noche-800 bg-noche-900/50 p-5">
-      <h2 className="font-titulo text-lg text-crema-50">Venta manual</h2>
+      <h2 className="font-titulo text-lg text-crema-50">Venta / abono manual</h2>
       <p className="mt-1 text-sm text-noche-300">
-        Para efectivo, acuerdos por WhatsApp o pagos que llegaron tarde. El
-        número queda vendido de una y te damos el enlace de la boleta para
-        compartírselo al comprador.
+        Para efectivo, acuerdos por WhatsApp o pagos que llegaron tarde. Si el
+        monto es el valor completo queda VENDIDO; si es parcial queda ABONADO.
+        Te damos el enlace de la boleta para compartírselo al comprador.
       </p>
 
       <form action={enviar} className="mt-4">
         <input type="hidden" name="raffleId" value={raffleId} />
-        <div className="grid gap-3 sm:grid-cols-[6rem_1fr_1fr_auto] sm:items-end">
+        <div className="grid gap-3 sm:grid-cols-[5rem_1fr_1fr_7rem_auto] sm:items-end">
           <label className="block">
             <span className="mb-1 block text-xs font-semibold text-noche-300">
               Número
@@ -81,12 +85,28 @@ export function FormularioVentaManual({ raffleId }: FormularioVentaManualProps) 
               className={ESTILO_INPUT}
             />
           </label>
+          <label className="block">
+            <span className="mb-1 block text-xs font-semibold text-noche-300">
+              Monto recibido
+            </span>
+            <input
+              name="monto"
+              type="number"
+              required
+              min={1000}
+              max={precio}
+              step={1000}
+              defaultValue={precio}
+              disabled={pendiente}
+              className={ESTILO_INPUT}
+            />
+          </label>
           <button
             type="submit"
             disabled={pendiente}
             className="btn-dorado !px-5 !py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {pendiente ? "Vendiendo…" : "Vender"}
+            {pendiente ? "Registrando…" : "Registrar"}
           </button>
         </div>
 

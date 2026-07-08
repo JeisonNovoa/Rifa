@@ -1,6 +1,6 @@
 import 'server-only';
 import { crearClienteAdmin } from '@/lib/supabase/admin';
-import type { TicketEstado } from '@/lib/types';
+import type { Abono, TicketEstado } from '@/lib/types';
 
 /** Datos de la boleta que ve SU comprador (autenticado con su token). */
 export interface BoletaComprador {
@@ -9,9 +9,13 @@ export interface BoletaComprador {
   estado: TicketEstado;
   reservado_hasta: string | null;
   comprador_nombre: string | null;
+  /** Suma de abonos confirmados */
+  total_abonado: number;
   tiene_comprobante: boolean;
   /** URL firmada temporal para previsualizar su propio comprobante */
   url_comprobante: string | null;
+  abonos_confirmados: Abono[];
+  abono_pendiente: Abono | null;
 }
 
 /**
@@ -27,7 +31,7 @@ export async function obtenerBoletaPorToken(
     const { data, error } = await admin
       .from('tickets')
       .select(
-        'id, numero, estado, reservado_hasta, comprador_nombre, comprobante_url, token_gestion'
+        'id, numero, estado, reservado_hasta, comprador_nombre, comprobante_url, token_gestion, total_abonado'
       )
       .eq('id', ticketId)
       .single();
@@ -43,14 +47,33 @@ export async function obtenerBoletaPorToken(
       urlComprobante = firmada?.signedUrl ?? null;
     }
 
+    // Historial de abonos (tolerante: si la tabla aún no existe, listas vacías)
+    let confirmados: Abono[] = [];
+    let pendiente: Abono | null = null;
+    const { data: abonos, error: errorAbonos } = await admin
+      .from('abonos')
+      .select('id, monto, estado, creado_en, resuelto_en')
+      .eq('ticket_id', ticketId)
+      .order('creado_en', { ascending: true });
+    if (errorAbonos) {
+      console.error('No se pudieron cargar los abonos:', errorAbonos.message);
+    } else {
+      const lista = (abonos ?? []) as Abono[];
+      confirmados = lista.filter((a) => a.estado === 'confirmado');
+      pendiente = lista.find((a) => a.estado === 'en_revision') ?? null;
+    }
+
     return {
       ticket_id: data.id,
       numero: data.numero,
       estado: data.estado as TicketEstado,
       reservado_hasta: data.reservado_hasta,
       comprador_nombre: data.comprador_nombre,
+      total_abonado: (data.total_abonado as number | null) ?? 0,
       tiene_comprobante: Boolean(data.comprobante_url),
       url_comprobante: urlComprobante,
+      abonos_confirmados: confirmados,
+      abono_pendiente: pendiente,
     };
   } catch (error: unknown) {
     console.error('obtenerBoletaPorToken:', error);

@@ -1,11 +1,9 @@
-import { headers } from "next/headers";
 import { BotonAccion } from "@/components/admin/BotonAccion";
 import { FormularioVentaManual } from "@/components/admin/FormularioVentaManual";
 import { ESTILO_INSIGNIA, ETIQUETA_ESTADO } from "@/components/admin/etiquetas";
 import { BotonCopiar } from "@/components/boleta/BotonCopiar";
 import { IconoWhatsApp } from "@/components/decoracion/Iconos";
 import {
-  accionConfirmarPago,
   accionRechazarPago,
   accionRevertirVenta,
 } from "@/lib/acciones/admin";
@@ -15,7 +13,8 @@ import {
   type TicketAdmin,
 } from "@/lib/datos/admin";
 import { obtenerRifaPublica } from "@/lib/datos/rifa";
-import { dosDigitos } from "@/lib/formato";
+import { dosDigitos, formatearPesos } from "@/lib/formato";
+import { obtenerUrlBase } from "@/lib/url-base";
 
 export const dynamic = "force-dynamic";
 
@@ -23,30 +22,39 @@ export default async function PaginaNumeros() {
   const [rifa, tickets, base] = await Promise.all([
     obtenerRifaPublica(),
     obtenerTicketsAdmin(),
-    urlBase(),
+    obtenerUrlBase(),
   ]);
 
   return (
     <div className="space-y-8">
       <h1 className="font-titulo text-3xl text-crema-50">Números</h1>
 
-      <FormularioVentaManual raffleId={rifa.id} />
+      <FormularioVentaManual
+        raffleId={rifa.id}
+        precio={rifa.precio_por_numero}
+      />
 
       <section aria-label="Listado de los 100 números">
         <div className="overflow-x-auto rounded-2xl border border-noche-800">
-          <table className="w-full min-w-[40rem] text-left text-sm">
+          <table className="w-full min-w-[46rem] text-left text-sm">
             <thead className="bg-noche-900/70 text-xs uppercase tracking-wide text-noche-300">
               <tr>
                 <th className="px-4 py-3">N.º</th>
                 <th className="px-4 py-3">Estado</th>
                 <th className="px-4 py-3">Comprador</th>
                 <th className="px-4 py-3">WhatsApp</th>
+                <th className="px-4 py-3">Pagado</th>
                 <th className="px-4 py-3">Acciones</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-noche-800/70">
               {tickets.map((ticket) => (
-                <FilaNumero key={ticket.id} ticket={ticket} base={base} />
+                <FilaNumero
+                  key={ticket.id}
+                  ticket={ticket}
+                  base={base}
+                  precio={rifa.precio_por_numero}
+                />
               ))}
             </tbody>
           </table>
@@ -56,7 +64,15 @@ export default async function PaginaNumeros() {
   );
 }
 
-function FilaNumero({ ticket, base }: { ticket: TicketAdmin; base: string }) {
+function FilaNumero({
+  ticket,
+  base,
+  precio,
+}: {
+  ticket: TicketAdmin;
+  base: string;
+  precio: number;
+}) {
   const vigente = reservaVigente(ticket);
   const estadoMostrado =
     ticket.estado === "reservado" && !vigente ? "disponible" : ticket.estado;
@@ -64,6 +80,7 @@ function FilaNumero({ ticket, base }: { ticket: TicketAdmin; base: string }) {
     ticket.token_gestion !== null
       ? `${base}/boleta/${ticket.id}?t=${ticket.token_gestion}`
       : null;
+  const abonado = ticket.total_abonado ?? 0;
 
   return (
     <tr className="bg-noche-900/30">
@@ -96,25 +113,31 @@ function FilaNumero({ ticket, base }: { ticket: TicketAdmin; base: string }) {
           <span className="text-noche-400">—</span>
         )}
       </td>
+      <td className="px-4 py-2.5 tabular-nums">
+        {abonado > 0 ? (
+          <span
+            className={
+              abonado >= precio ? "text-dorado-300" : "text-crema-50"
+            }
+          >
+            {formatearPesos(abonado)}
+            {abonado < precio && (
+              <span className="text-xs text-rojo-400">
+                {" "}
+                (debe {formatearPesos(precio - abonado)})
+              </span>
+            )}
+          </span>
+        ) : (
+          <span className="text-noche-400">—</span>
+        )}
+      </td>
       <td className="px-4 py-2.5">
         <div className="flex flex-wrap items-center gap-2">
           {ticket.estado === "en_revision" && (
-            <>
-              <BotonAccion
-                accion={accionConfirmarPago}
-                campos={{ ticketId: ticket.id }}
-                etiqueta="Confirmar"
-                variante="dorado"
-                confirmacion={`¿Confirmar el pago del ${dosDigitos(ticket.numero)}?`}
-              />
-              <BotonAccion
-                accion={accionRechazarPago}
-                campos={{ ticketId: ticket.id, motivo: "rechazado desde la tabla" }}
-                etiqueta="Rechazar"
-                variante="peligro"
-                confirmacion={`¿Rechazar y liberar el ${dosDigitos(ticket.numero)}?`}
-              />
-            </>
+            <span className="text-xs text-noche-400">
+              revisa el abono en el Resumen
+            </span>
           )}
           {ticket.estado === "reservado" && vigente && (
             <BotonAccion
@@ -128,17 +151,31 @@ function FilaNumero({ ticket, base }: { ticket: TicketAdmin; base: string }) {
               confirmacion={`¿Liberar el ${dosDigitos(ticket.numero)}? La persona pierde su reserva.`}
             />
           )}
+          {ticket.estado === "abonado" && (
+            <>
+              <span className="text-xs text-noche-400">
+                gestiónalo en Deudores (Resumen)
+              </span>
+              {enlaceBoleta && (
+                <BotonCopiar
+                  valor={enlaceBoleta}
+                  etiqueta="Copiar boleta"
+                  apariencia="oscura"
+                />
+              )}
+            </>
+          )}
           {ticket.estado === "vendido" && (
             <>
               <BotonAccion
                 accion={accionRevertirVenta}
                 campos={{
                   ticketId: ticket.id,
-                  motivo: "revertida desde la tabla",
+                  motivo: "revertido desde la tabla",
                 }}
-                etiqueta="Revertir"
+                etiqueta="Revertir último abono"
                 variante="peligro"
-                confirmacion={`¿Revertir la venta del ${dosDigitos(ticket.numero)}? Vuelve a "en revisión" (no se pierde nada) y ahí decides de nuevo.`}
+                confirmacion={`¿Devolver el último abono del ${dosDigitos(ticket.numero)} a revisión? No se pierde nada: lo confirmas de nuevo o lo rechazas.`}
               />
               {enlaceBoleta && (
                 <BotonCopiar
@@ -158,13 +195,4 @@ function FilaNumero({ ticket, base }: { ticket: TicketAdmin; base: string }) {
       </td>
     </tr>
   );
-}
-
-async function urlBase(): Promise<string> {
-  const encabezados = await headers();
-  const host = encabezados.get("host") ?? "localhost:3000";
-  const protocolo =
-    encabezados.get("x-forwarded-proto") ??
-    (host.startsWith("localhost") ? "http" : "https");
-  return `${protocolo}://${host}`;
 }

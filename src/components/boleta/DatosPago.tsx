@@ -30,13 +30,13 @@ export function DatosPago({ rifa, className = "" }: DatosPagoProps) {
 
         {/* Método recomendado: llave Bre-B (sirve desde cualquier banco) */}
         <div className="mt-5 rounded-xl border border-noche-900/15 bg-white/60 p-4">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
             <div className="min-w-0">
               <p className="flex items-center gap-1.5 text-xs font-semibold tracking-wide text-noche-900/60">
                 <IconoLlave className="h-4 w-4 text-dorado-600" />
                 LLAVE BRE-B · RECOMENDADO
               </p>
-              <p className="mt-1 truncate font-titulo text-2xl tracking-wider">
+              <p className="mt-1 break-all font-titulo text-2xl tracking-wider">
                 {rifa.nequi_llave ?? "Por definir"}
               </p>
             </div>

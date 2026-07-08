@@ -29,7 +29,7 @@ export function HeroRifa({ rifa }: HeroRifaProps) {
       {/* Título de cartel */}
       <div className="relative pb-4 pt-12 sm:pt-16">
         <p className="animar-entrada font-titulo text-sm tracking-[0.35em] text-dorado-400">
-          RIFA · SOLO UN GANADOR
+          GRAN RIFA · TÚ ELIGES TU DESTINO
         </p>
         <h1 className="mt-3">
           <span className="animar-entrada retraso-1 block font-titulo text-[clamp(3.4rem,13vw,6.5rem)] leading-[0.92] text-crema-50">
@@ -45,11 +45,11 @@ export function HeroRifa({ rifa }: HeroRifaProps) {
           <strong className="font-semibold text-crema-50">
             un viaje para dos personas
           </strong>{" "}
-          al destino que elijas, con{" "}
+          —2 días, 1 noche— al destino que elijas, más{" "}
           <strong className="font-semibold text-crema-50">
-            $500.000 para viáticos
-          </strong>
-          .
+            $500.000 de viáticos
+          </strong>{" "}
+          para vivir tu aventura al máximo.
         </p>
 
         <div className="animar-entrada retraso-4 mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
@@ -75,7 +75,17 @@ export function HeroRifa({ rifa }: HeroRifaProps) {
           )}
         </div>
 
-        <RutaAvion className="mt-10 w-56 text-dorado-400/40 sm:w-72" />
+        {rifa.estado === "activa" && (
+          <p className="animar-entrada retraso-4 mt-4 text-sm text-noche-300">
+            💛 Apártala desde{" "}
+            <strong className="font-semibold text-dorado-300">
+              {formatearPesos(rifa.abono_minimo ?? 20000)}
+            </strong>{" "}
+            y termina de pagar antes del sorteo.
+          </p>
+        )}
+
+        <RutaAvion className="mt-8 w-56 text-dorado-400/40 sm:w-72" />
       </div>
     </header>
   );

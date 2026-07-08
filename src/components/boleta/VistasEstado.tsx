@@ -2,7 +2,11 @@ import Link from "next/link";
 import { FormularioComprobante } from "@/components/boleta/FormularioComprobante";
 import { GuardaEnlace } from "@/components/boleta/VistaPago";
 import type { BoletaComprador } from "@/lib/datos/boleta";
-import { dosDigitos, formatearFechaLarga } from "@/lib/formato";
+import {
+  dosDigitos,
+  formatearFechaLarga,
+  formatearPesos,
+} from "@/lib/formato";
 import type { RifaPublica } from "@/lib/types";
 
 /* Vistas de la boleta para los estados distintos a "reservado".
@@ -14,7 +18,7 @@ interface VistaConBoletaProps {
   token: string;
 }
 
-/** Estado "en_revision": comprobante recibido, esperando al organizador. */
+/** Estado "en_revision": primer comprobante recibido, esperando al organizador. */
 export function VistaEnRevision({ boleta, rifa, token }: VistaConBoletaProps) {
   return (
     <section className="pt-10">
@@ -26,8 +30,18 @@ export function VistaEnRevision({ boleta, rifa, token }: VistaConBoletaProps) {
         está en revisión
       </h1>
       <p className="mt-3 max-w-md leading-relaxed text-noche-300">
-        Estamos verificando tu pago. Cuando el organizador lo confirme, el
-        número queda a tu nombre y te avisamos por WhatsApp.
+        Estamos verificando tu pago
+        {boleta.abono_pendiente && (
+          <>
+            {" "}
+            de{" "}
+            <strong className="font-titulo text-base text-dorado-300">
+              {formatearPesos(boleta.abono_pendiente.monto)}
+            </strong>
+          </>
+        )}
+        . Cuando el organizador lo confirme, el número queda apartado a tu
+        nombre (o vendido si pagaste completo) y te avisamos por WhatsApp.
       </p>
 
       {boleta.url_comprobante && (
@@ -47,7 +61,11 @@ export function VistaEnRevision({ boleta, rifa, token }: VistaConBoletaProps) {
       <FormularioComprobante
         ticketId={boleta.ticket_id}
         token={token}
-        titulo="¿TE EQUIVOCASTE DE FOTO? SÚBELA DE NUEVO"
+        precio={rifa.precio_por_numero}
+        abonoMinimo={rifa.abono_minimo ?? 20000}
+        restante={rifa.precio_por_numero - boleta.total_abonado}
+        esPrimerPago={boleta.total_abonado === 0}
+        titulo="¿TE EQUIVOCASTE? SUBE LA FOTO O EL MONTO DE NUEVO"
         className="mt-8"
       />
 

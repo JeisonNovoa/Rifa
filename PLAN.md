@@ -155,6 +155,8 @@ Toda transición escribe en `audit_log`.
 | 4 | Página de ganador + cierre/reapertura de rifa + venta manual post-cierre (realtime resuelto con polling 10s + vista que enmascara expirados — suficiente para 100 números) | ✅ 2026-07-06 |
 | 5 | QR descargable en el panel, íconos/animaciones/responsive, OG para WhatsApp, favicon, 404, Dockerfile+fly.toml corregidos (502 de prod resuelto: PORT 8080) | ✅ 2026-07-07 |
 
+| 6 | Sistema de ABONOS (flyer v2): apartar con $20.000, pagos por partes, plazo 26-sep 5pm, "no 100% paga no juega", panel de deudores + abono manual, 2 destinos nuevos (Norcasia / Güejar) | ✅ 2026-07-07 — migración aplicada y probada e2e (flujo abono→completar→vendido) |
+
 Cada fase deja algo funcional y verificable.
 
 ---

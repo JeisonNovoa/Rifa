@@ -1,5 +1,7 @@
+import { IconoWhatsApp } from "@/components/decoracion/Iconos";
 import { RutaAvion } from "@/components/decoracion/RutaAvion";
 import { AnuncioGanador } from "@/components/rifa/AnuncioGanador";
+import { FRASE_FOOTER, TEXTO_LEGAL, WHATSAPP_CONTACTO } from "@/lib/contenido";
 import { ComoFunciona } from "@/components/rifa/ComoFunciona";
 import { Destinos } from "@/components/rifa/Destinos";
 import { HeroRifa } from "@/components/rifa/HeroRifa";
@@ -85,12 +87,22 @@ export default async function PaginaRifa() {
           <footer className="revelar mt-24 border-t border-noche-800 pb-4 pt-8 text-center">
             <RutaAvion className="mx-auto w-44 text-dorado-400/30" />
             <p className="mt-2 font-script text-2xl text-dorado-400">
-              Gracias por hacer parte de esta aventura ♥
+              {FRASE_FOOTER}
             </p>
-            <p className="mt-3 text-xs text-noche-400">
+            <a
+              href={`https://wa.me/57${WHATSAPP_CONTACTO}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-noche-300 underline decoration-noche-600 underline-offset-4 transition-colors hover:text-crema-50"
+            >
+              <IconoWhatsApp className="h-4 w-4" />
+              ¿Preguntas? Escríbenos: 300 758 3856
+            </a>
+            <p className="mt-4 text-xs text-noche-400">
               Viaja por Colombia · Rifa 00–99 · Sorteo{" "}
               {formatearFechaCorta(rifa.fecha_sorteo)} con la Lotería de Boyacá
             </p>
+            <p className="mt-1.5 text-[11px] text-noche-400/80">{TEXTO_LEGAL}</p>
           </footer>
         </main>
       </div>

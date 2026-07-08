@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SelloRifa } from "@/components/decoracion/SelloRifa";
+import { VistaAbonado } from "@/components/boleta/VistaAbonado";
 import { VistaPago } from "@/components/boleta/VistaPago";
 import {
   VistaEnRevision,
@@ -74,6 +75,8 @@ async function resolverContenido(id: string, token: string | undefined) {
     }
     case "en_revision":
       return <VistaEnRevision boleta={boleta} rifa={rifa} token={token} />;
+    case "abonado":
+      return <VistaAbonado boleta={boleta} rifa={rifa} token={token} />;
     case "vendido":
       return <VistaVendida boleta={boleta} rifa={rifa} />;
     default:

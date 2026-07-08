@@ -12,20 +12,34 @@ export interface TicketAdmin {
   comprador_whatsapp: string | null;
   comprobante_url: string | null;
   token_gestion: string | null;
+  total_abonado: number;
   actualizado_en: string;
   confirmado_en: string | null;
 }
 
-export interface PendienteRevision extends TicketAdmin {
+/** Un abono pendiente de revisión, con los datos de su boleta. */
+export interface AbonoPendiente {
+  abono_id: string;
+  monto_declarado: number;
+  creado_en: string;
   url_comprobante_firmada: string | null;
+  ticket_id: string;
+  numero: number;
+  comprador_nombre: string | null;
+  comprador_whatsapp: string | null;
+  total_previo: number;
 }
 
 export interface ResumenAdmin {
   libres: number;
   reservados: number;
   en_revision: number;
+  abonados: number;
   vendidos: number;
+  /** Plata CONFIRMADA en caja (suma de todos los abonos confirmados) */
   recaudo: number;
+  /** Lo que deben los abonados para completar sus boletas */
+  por_cobrar: number;
   recaudo_posible: number;
 }
 
@@ -42,7 +56,7 @@ export async function obtenerTicketsAdmin(): Promise<TicketAdmin[]> {
   const { data, error } = await admin
     .from('tickets')
     .select(
-      'id, numero, estado, reservado_hasta, comprador_nombre, comprador_whatsapp, comprobante_url, token_gestion, actualizado_en, confirmado_en'
+      'id, numero, estado, reservado_hasta, comprador_nombre, comprador_whatsapp, comprobante_url, token_gestion, total_abonado, actualizado_en, confirmado_en'
     )
     .order('numero', { ascending: true });
   if (error) {
@@ -67,45 +81,84 @@ export function resumirTickets(
   const ahora = Date.now();
   const vendidos = tickets.filter((t) => t.estado === 'vendido').length;
   const enRevision = tickets.filter((t) => t.estado === 'en_revision').length;
+  const abonados = tickets.filter((t) => t.estado === 'abonado').length;
   const reservados = tickets.filter((t) => reservaVigente(t, ahora)).length;
+  const recaudo = tickets.reduce((suma, t) => suma + (t.total_abonado ?? 0), 0);
+  const porCobrar = tickets
+    .filter((t) => t.estado === 'abonado')
+    .reduce((suma, t) => suma + (precioPorNumero - (t.total_abonado ?? 0)), 0);
   return {
     vendidos,
     en_revision: enRevision,
+    abonados,
     reservados,
-    libres: tickets.length - vendidos - enRevision - reservados,
-    recaudo: vendidos * precioPorNumero,
+    libres: tickets.length - vendidos - enRevision - abonados - reservados,
+    recaudo,
+    por_cobrar: porCobrar,
     recaudo_posible: tickets.length * precioPorNumero,
   };
 }
 
-/** Agrega URLs firmadas temporales para previsualizar los comprobantes. */
-export async function firmarComprobantes(
-  pendientes: TicketAdmin[]
-): Promise<PendienteRevision[]> {
+/** Abonos pendientes de revisión con su comprobante firmado. */
+export async function obtenerAbonosPendientes(): Promise<AbonoPendiente[]> {
   const admin = crearClienteAdmin();
-  const rutas = pendientes
-    .map((p) => p.comprobante_url)
-    .filter((ruta): ruta is string => ruta !== null);
+  const { data, error } = await admin
+    .from('abonos')
+    .select(
+      'id, monto, comprobante_url, creado_en, tickets(id, numero, comprador_nombre, comprador_whatsapp, total_abonado)'
+    )
+    .eq('estado', 'en_revision')
+    .order('creado_en', { ascending: true });
+  if (error) {
+    console.error('No se pudieron cargar los abonos pendientes:', error.message);
+    return [];
+  }
 
+  const filas = (data ?? []) as unknown as Array<{
+    id: string;
+    monto: number;
+    comprobante_url: string | null;
+    creado_en: string;
+    tickets: {
+      id: string;
+      numero: number;
+      comprador_nombre: string | null;
+      comprador_whatsapp: string | null;
+      total_abonado: number | null;
+    } | null;
+  }>;
+
+  const rutas = filas
+    .map((f) => f.comprobante_url)
+    .filter((ruta): ruta is string => ruta !== null);
   const firmadas = new Map<string, string>();
   if (rutas.length > 0) {
-    const { data, error } = await admin.storage
+    const { data: firmas, error: errorFirmas } = await admin.storage
       .from('comprobantes')
       .createSignedUrls(rutas, 3600);
-    if (error) {
-      console.error('No se pudieron firmar los comprobantes:', error.message);
+    if (errorFirmas) {
+      console.error('No se pudieron firmar los comprobantes:', errorFirmas.message);
     }
-    data?.forEach((firma) => {
+    firmas?.forEach((firma) => {
       if (firma.signedUrl && firma.path) firmadas.set(firma.path, firma.signedUrl);
     });
   }
 
-  return pendientes.map((p) => ({
-    ...p,
-    url_comprobante_firmada: p.comprobante_url
-      ? (firmadas.get(p.comprobante_url) ?? null)
-      : null,
-  }));
+  return filas
+    .filter((f) => f.tickets !== null)
+    .map((f) => ({
+      abono_id: f.id,
+      monto_declarado: f.monto,
+      creado_en: f.creado_en,
+      url_comprobante_firmada: f.comprobante_url
+        ? (firmadas.get(f.comprobante_url) ?? null)
+        : null,
+      ticket_id: f.tickets!.id,
+      numero: f.tickets!.numero,
+      comprador_nombre: f.tickets!.comprador_nombre,
+      comprador_whatsapp: f.tickets!.comprador_whatsapp,
+      total_previo: f.tickets!.total_abonado ?? 0,
+    }));
 }
 
 export async function obtenerEventosRecientes(

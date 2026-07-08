@@ -37,6 +37,20 @@ export function formatearFechaCorta(fechaIso: string | null): string {
   }).format(fecha);
 }
 
+/** Timestamp ISO → "26 de septiembre de 2026, 5:00 p. m." (hora Colombia) */
+export function formatearFechaHora(timestampIso: string | null): string {
+  if (!timestampIso) return "por definir";
+  return new Intl.DateTimeFormat("es-CO", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "America/Bogota",
+  }).format(new Date(timestampIso));
+}
+
 /** 7 → "07" (los números de la rifa siempre van con dos cifras) */
 export function dosDigitos(numero: number): string {
   return numero.toString().padStart(2, "0");
