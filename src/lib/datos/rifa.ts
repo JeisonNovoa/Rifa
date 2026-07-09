@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
+import { conReintento } from "@/lib/reintento";
 import type { CasillaTablero, RifaPublica } from "@/lib/types";
 
 /**
@@ -19,23 +20,27 @@ function clientePublico() {
 }
 
 export async function obtenerRifaPublica(): Promise<RifaPublica> {
-  const { data, error } = await clientePublico()
-    .from("rifa_publica")
-    .select("*")
-    .single();
-  if (error) {
-    throw new Error(`No se pudo cargar la rifa: ${error.message}`);
-  }
-  return data as RifaPublica;
+  return conReintento(async () => {
+    const { data, error } = await clientePublico()
+      .from("rifa_publica")
+      .select("*")
+      .single();
+    if (error) {
+      throw new Error(`No se pudo cargar la rifa: ${error.message}`);
+    }
+    return data as RifaPublica;
+  });
 }
 
 export async function obtenerTablero(): Promise<CasillaTablero[]> {
-  const { data, error } = await clientePublico()
-    .from("tablero")
-    .select("raffle_id, numero, estado, reservado_hasta")
-    .order("numero", { ascending: true });
-  if (error) {
-    throw new Error(`No se pudo cargar el tablero: ${error.message}`);
-  }
-  return (data ?? []) as CasillaTablero[];
+  return conReintento(async () => {
+    const { data, error } = await clientePublico()
+      .from("tablero")
+      .select("raffle_id, numero, estado, reservado_hasta")
+      .order("numero", { ascending: true });
+    if (error) {
+      throw new Error(`No se pudo cargar el tablero: ${error.message}`);
+    }
+    return (data ?? []) as CasillaTablero[];
+  });
 }

@@ -6,6 +6,7 @@ import { VistaAbonado } from "@/components/boleta/VistaAbonado";
 import { VistaPago } from "@/components/boleta/VistaPago";
 import {
   VistaEnRevision,
+  VistaErrorConexion,
   VistaExpirada,
   VistaInvalida,
   VistaVendida,
@@ -59,10 +60,21 @@ async function resolverContenido(id: string, token: string | undefined) {
     return <VistaInvalida />;
   }
 
-  const boleta = await obtenerBoletaPorToken(id, token);
-  if (!boleta) return <VistaInvalida />;
-
-  const rifa = await obtenerRifaPublica();
+  // Un parpadeo de conexión NO puede convertirse en "boleta no existe":
+  // se muestra la vista de reintento y la URL (con el token) se conserva.
+  let boleta;
+  let rifa;
+  try {
+    boleta = await obtenerBoletaPorToken(id, token);
+    if (boleta) rifa = await obtenerRifaPublica();
+  } catch (error: unknown) {
+    console.error("Fallo temporal cargando la boleta:", error);
+    return <VistaErrorConexion />;
+  }
+  if (!boleta || !rifa) {
+    if (!boleta) return <VistaInvalida />;
+    return <VistaErrorConexion />;
+  }
 
   switch (boleta.estado) {
     case "reservado": {

@@ -27,6 +27,7 @@ primary_region = 'ams'
   processes = ['app']
 
 [[vm]]
-  memory = '256mb'
+  # 512MB: con 256MB Next.js SSR sufría de inestabilidad intermitente
+  memory = '512mb'
   cpu_kind = 'shared'
   cpus = 1

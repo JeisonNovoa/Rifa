@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { IconoBoleto } from "@/components/decoracion/Iconos";
+import { BotonReintentar } from "@/components/boleta/BotonReintentar";
 import { FormularioComprobante } from "@/components/boleta/FormularioComprobante";
 import { GuardaEnlace } from "@/components/boleta/VistaPago";
 import type { BoletaComprador } from "@/lib/datos/boleta";
@@ -131,6 +132,32 @@ export function VistaExpirada({ numero }: { numero: number }) {
         <IconoBoleto className="h-5 w-5" />
         Volver al tablero
       </Link>
+    </section>
+  );
+}
+
+/**
+ * Falla temporal de conexión al cargar la boleta.
+ * OJO: aquí la boleta puede estar perfectamente viva — jamás decir
+ * "no existe". Solo invitar a reintentar (la URL no se pierde).
+ */
+export function VistaErrorConexion() {
+  return (
+    <section className="pt-10">
+      <p className="font-titulo text-sm tracking-[0.35em] text-dorado-400">
+        UN MOMENTICO…
+      </p>
+      <h1 className="mt-2 font-titulo text-4xl text-crema-50 sm:text-5xl">
+        No pudimos cargar tu boleta
+      </h1>
+      <p className="mt-3 max-w-md leading-relaxed text-noche-300">
+        Fue un problema de conexión de nuestro lado,{" "}
+        <strong className="font-semibold text-crema-50">
+          tu boleta y tu número están a salvo
+        </strong>
+        . Dale reintentar en unos segundos.
+      </p>
+      <BotonReintentar className="mt-6" />
     </section>
   );
 }
