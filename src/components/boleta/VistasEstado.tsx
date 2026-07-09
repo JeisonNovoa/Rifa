@@ -2,6 +2,7 @@ import Link from "next/link";
 import { IconoBoleto } from "@/components/decoracion/Iconos";
 import { BotonReintentar } from "@/components/boleta/BotonReintentar";
 import { FormularioComprobante } from "@/components/boleta/FormularioComprobante";
+import { LimpiarBoletaGuardada } from "@/components/boleta/LimpiarBoletaGuardada";
 import { GuardaEnlace } from "@/components/boleta/VistaPago";
 import type { BoletaComprador } from "@/lib/datos/boleta";
 import {
@@ -118,6 +119,7 @@ export function VistaVendida({ boleta, rifa }: Omit<VistaConBoletaProps, "token"
 export function VistaExpirada({ numero }: { numero: number }) {
   return (
     <section className="pt-10">
+      <LimpiarBoletaGuardada numero={numero} />
       <p className="font-titulo text-sm tracking-[0.35em] text-rojo-400">
         SE ACABÓ EL TIEMPO
       </p>
@@ -166,6 +168,7 @@ export function VistaErrorConexion() {
 export function VistaInvalida() {
   return (
     <section className="pt-10">
+      <LimpiarBoletaGuardada />
       <p className="font-titulo text-sm tracking-[0.35em] text-rojo-400">
         ENLACE NO VÁLIDO
       </p>

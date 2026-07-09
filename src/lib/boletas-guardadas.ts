@@ -6,12 +6,36 @@
  * Solo corre en el navegador; guarda lo mínimo (número + enlace).
  */
 
+import { UUID_REGEX } from "@/lib/validacion";
+
 const CLAVE = "rifa_boletas_guardadas";
 
 export interface BoletaGuardada {
   numero: number;
   url: string; // ruta relativa: /boleta/{id}?t={token}
   guardadaEn: number;
+}
+
+/** Par id + token extraído del enlace guardado; sirve para verificarla en el servidor. */
+export interface CredencialesBoleta {
+  id: string;
+  token: string;
+}
+
+/**
+ * Extrae el id del ticket y el token de gestión de la URL guardada.
+ * Devuelve null si la entrada está corrupta o no tiene el formato esperado.
+ */
+export function extraerIdYToken(url: string): CredencialesBoleta | null {
+  try {
+    const { pathname, searchParams } = new URL(url, "http://relativa");
+    const id = /^\/boleta\/([0-9a-f-]{36})$/i.exec(pathname)?.[1];
+    const token = searchParams.get("t") ?? "";
+    if (!id || !UUID_REGEX.test(id) || !UUID_REGEX.test(token)) return null;
+    return { id, token };
+  } catch {
+    return null;
+  }
 }
 
 function esNavegador(): boolean {
@@ -48,6 +72,17 @@ export function olvidarBoleta(numero: number): void {
   if (!esNavegador()) return;
   try {
     const nuevas = leerBoletasGuardadas().filter((b) => b.numero !== numero);
+    window.localStorage.setItem(CLAVE, JSON.stringify(nuevas));
+  } catch {
+    // se ignora
+  }
+}
+
+/** Olvida la boleta guardada cuyo enlace coincide exactamente con la URL dada. */
+export function olvidarBoletaPorUrl(url: string): void {
+  if (!esNavegador()) return;
+  try {
+    const nuevas = leerBoletasGuardadas().filter((b) => b.url !== url);
     window.localStorage.setItem(CLAVE, JSON.stringify(nuevas));
   } catch {
     // se ignora

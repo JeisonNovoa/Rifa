@@ -33,6 +33,17 @@ export const esquemaComprobante = z.object({
   monto: z.coerce.number().int().min(1000),
 });
 
+/** Entradas para verificar boletas guardadas en un dispositivo (máx. 20, igual que el localStorage). */
+export const esquemaVerificacionBoletas = z
+  .array(
+    z.object({
+      id: z.string().regex(UUID_REGEX),
+      token: z.string().regex(UUID_REGEX),
+    })
+  )
+  .min(1)
+  .max(20);
+
 export const esquemaConfiguracion = z.object({
   raffleId: z.string().regex(UUID_REGEX),
   llave: z.string().trim().max(60),

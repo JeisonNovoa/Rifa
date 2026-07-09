@@ -3,19 +3,75 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { IconoBoleto } from "@/components/decoracion/Iconos";
-import { leerBoletasGuardadas, type BoletaGuardada } from "@/lib/boletas-guardadas";
+import { accionVerificarBoletas } from "@/lib/acciones/reservas";
+import {
+  extraerIdYToken,
+  leerBoletasGuardadas,
+  olvidarBoleta,
+  type BoletaGuardada,
+  type CredencialesBoleta,
+} from "@/lib/boletas-guardadas";
 import { dosDigitos } from "@/lib/formato";
+
+interface EntradaVerificable {
+  boleta: BoletaGuardada;
+  credenciales: CredencialesBoleta;
+}
 
 /**
  * Recupera las boletas que la persona apartó en este dispositivo
- * (guardadas en localStorage) y las muestra para retomar el pago.
- * Si no hay ninguna, no renderiza nada.
+ * (guardadas en localStorage), las verifica contra el servidor y muestra
+ * SOLO las que siguen vigentes; las vencidas o liberadas se olvidan aquí
+ * mismo para que no queden tarjetas fantasma. Si no queda ninguna, no
+ * renderiza nada.
  */
 export function MisBoletas() {
   const [boletas, setBoletas] = useState<BoletaGuardada[]>([]);
 
   useEffect(() => {
-    setBoletas(leerBoletasGuardadas());
+    const guardadas = leerBoletasGuardadas();
+    if (guardadas.length === 0) return;
+
+    // Entradas corruptas (URL irreconocible): se olvidan de una vez.
+    const verificables: EntradaVerificable[] = [];
+    for (const boleta of guardadas) {
+      const credenciales = extraerIdYToken(boleta.url);
+      if (credenciales) {
+        verificables.push({ boleta, credenciales });
+      } else {
+        olvidarBoleta(boleta.numero);
+      }
+    }
+    if (verificables.length === 0) return;
+
+    let activo = true;
+    (async () => {
+      const resultado = await accionVerificarBoletas(
+        verificables.map((entrada) => entrada.credenciales)
+      );
+      if (!activo) return;
+
+      // Falla temporal verificando: mejor mostrar lo guardado que borrarlo.
+      if (resultado === null) {
+        setBoletas(verificables.map((entrada) => entrada.boleta));
+        return;
+      }
+
+      const vigentes = new Set(resultado.vigentes);
+      const vivas: BoletaGuardada[] = [];
+      for (const entrada of verificables) {
+        if (vigentes.has(entrada.credenciales.id)) {
+          vivas.push(entrada.boleta);
+        } else {
+          olvidarBoleta(entrada.boleta.numero);
+        }
+      }
+      setBoletas(vivas);
+    })();
+
+    return () => {
+      activo = false;
+    };
   }, []);
 
   if (boletas.length === 0) return null;

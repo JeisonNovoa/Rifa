@@ -17,6 +17,7 @@ import type {
 import {
   esquemaComprobante,
   esquemaReserva,
+  esquemaVerificacionBoletas,
   normalizarWhatsapp,
 } from '@/lib/validacion';
 
@@ -156,4 +157,66 @@ export async function accionSubirComprobante(
   }
 
   redirect(`/boleta/${ticketId}?t=${token}`);
+}
+
+interface FilaVerificacion {
+  id: string;
+  estado: string;
+  reservado_hasta: string | null;
+  token_gestion: string | null;
+}
+
+/**
+ * Verifica cuáles boletas guardadas en un dispositivo siguen vigentes.
+ * Recibe pares {id, token} (los mismos del enlace secreto) y devuelve los ids
+ * cuya boleta sigue viva: reservada sin vencer, en revisión, abonada o vendida.
+ *
+ * Devuelve null ante una falla temporal: quien llama NO debe borrar nada,
+ * solo conservar lo que tenía (una caída de red no puede volverse "borra todo").
+ */
+export async function accionVerificarBoletas(
+  entradas: { id: string; token: string }[]
+): Promise<{ vigentes: string[] } | null> {
+  const parseo = esquemaVerificacionBoletas.safeParse(entradas);
+  if (!parseo.success) return { vigentes: [] };
+
+  try {
+    const admin = crearClienteAdmin();
+    const { data, error } = await admin
+      .from('tickets')
+      .select('id, estado, reservado_hasta, token_gestion')
+      .in(
+        'id',
+        parseo.data.map((entrada) => entrada.id)
+      );
+    if (error) {
+      console.error('Verificación de boletas falló:', error.message);
+      return null;
+    }
+
+    const porId = new Map(
+      ((data ?? []) as FilaVerificacion[]).map((fila) => [fila.id, fila])
+    );
+    const ahora = Date.now();
+    const vigentes = parseo.data
+      .filter((entrada) => {
+        const ticket = porId.get(entrada.id);
+        if (!ticket?.token_gestion || ticket.token_gestion !== entrada.token) {
+          return false;
+        }
+        if (ticket.estado === 'reservado') {
+          return (
+            Boolean(ticket.reservado_hasta) &&
+            new Date(ticket.reservado_hasta as string).getTime() > ahora
+          );
+        }
+        return ['en_revision', 'abonado', 'vendido'].includes(ticket.estado);
+      })
+      .map((entrada) => entrada.id);
+
+    return { vigentes };
+  } catch (error: unknown) {
+    console.error('accionVerificarBoletas:', error);
+    return null;
+  }
 }
