@@ -21,7 +21,7 @@ const instrument = Instrument_Sans({
 
 const DESCRIPCION =
   "Viaje para dos personas + $500.000 de viáticos. Boleta a $60.000. " +
-  "Escoge tu número del 00 al 99. Juega el sábado 26 de septiembre de 2026 con la Lotería de Boyacá.";
+  "Escoge tu número del 00 al 99. Juega el sábado 17 de octubre de 2026 con la Lotería de Boyacá.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://rifa.fly.dev"),

@@ -43,9 +43,9 @@ export function HeroRifa({ rifa }: HeroRifaProps) {
         <p className="animar-entrada retraso-3 mt-6 max-w-md text-lg leading-relaxed text-noche-300">
           Gánate{" "}
           <strong className="font-semibold text-crema-50">
-            un viaje para dos personas
+            un viaje todo incluido para dos personas
           </strong>{" "}
-          —2 días, 1 noche— al destino que elijas, más{" "}
+          al destino que elijas, más{" "}
           <strong className="font-semibold text-crema-50">
             $500.000 de viáticos
           </strong>{" "}

@@ -17,7 +17,7 @@ const NOCHE = "#101f3c";
 
 export default async function ImagenParaCompartir() {
   let precio = "$ 60.000";
-  let fecha = "26 de septiembre de 2026";
+  let fecha = "17 de octubre de 2026";
   try {
     const rifa = await obtenerRifaPublica();
     precio = formatearPesos(rifa.precio_por_numero);

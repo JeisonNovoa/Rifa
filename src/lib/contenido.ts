@@ -14,55 +14,58 @@ export const DESTINOS: readonly Destino[] = [
   {
     nombre: 'Norcasia, Caldas',
     descripcion:
-      'Embalse Amaní, río La Miel y cascadas esmeralda: lancha, body rafting y pozos naturales.',
-    detalle: 'Plan para 2 personas · 2 días, 1 noche',
+      'Ríos cristalinos, cascadas y montañas: body rafting y senderismo por el río La Miel, la Cascada La Clara y los ríos Amaní y Manso.',
+    detalle: 'Plan para 2 personas · 2 días, 2 noches · Todo incluido',
     atractivos: [
-      'Paseo en lancha por el Embalse Amaní',
+      'Body rafting en el río La Miel',
       'Cascada La Clara',
-      'Body rafting en el cañón del río La Miel',
-      'Pozos cristalinos del río Manso',
+      'Senderismo por la ribera del río Amaní',
+      'Body rafting en el río Manso',
     ],
     itinerario: [
       {
-        dia: 'Día 1',
-        plan: 'Caminata a la Cascada La Clara, recorrido en lancha por el cañón del río La Miel, body rafting y almuerzo típico. Noche en hotel o cabaña.',
+        dia: 'Noche 1 · Llegada',
+        plan: 'Llegada a Norcasia, check-in en el hospedaje, cena y descanso.',
       },
       {
-        dia: 'Día 2',
-        plan: 'Navegación por el Embalse Amaní hasta la presa, baño en los pozos naturales del río Manso y almuerzo antes del regreso.',
+        dia: 'Día 1 · Río La Miel + Cascada La Clara',
+        plan: 'Desayuno, caminata ecológica y body rafting por el río La Miel, almuerzo tipo fiambre y visita a la Cascada La Clara. Regreso al hotel, cena y noche libre.',
+      },
+      {
+        dia: 'Día 2 · Río Amaní + Río Manso',
+        plan: 'Desayuno, senderismo por la ribera del río Amaní y body rafting en el río Manso. Almuerzo y cierre del plan al mediodía.',
       },
     ],
   },
   {
-    nombre: 'Cañón del Río Güejar',
+    nombre: 'Güejar + Paraíso, Meta',
     descripcion:
-      'Rafting de 17 km entre cañones, cascadas y valles escondidos en Mesetas, Meta.',
-    detalle: 'Plan para 2 personas · 2 días, 1 noche',
+      'Aventura entre ríos, senderos y cascadas: senderismo por el Paraíso de Cascadas y rafting por el cañón del río Güejar, saliendo desde Mesetas.',
+    detalle: 'Plan para 2 personas · 2 días, 1 noche · Todo incluido',
     atractivos: [
-      'Rafting de 17 km (nivel III)',
-      'Cañón con rocas de más de 30 metros',
-      'Valle de las Hadas y cascadas',
-      'Jacuzzis y toboganes naturales',
+      'Senderismo y baño recreativo en el Paraíso de Cascadas',
+      'Rafting recreativo por el cañón del río Güejar',
+      'Cascadas y pozas naturales',
     ],
     itinerario: [
       {
-        dia: 'Día 1',
-        plan: 'Traslado al punto de embarque, charla de seguridad y descenso de 17 km por el cañón con paradas en cascadas y zonas para nadar. Almuerzo en finca ecoturística y noche en cabaña.',
+        dia: 'Día 1 · Paraíso de Cascadas',
+        plan: 'Encuentro y desayuno a las 7:30 a. m., senderismo con visita a cascadas y pozas, y almuerzo. Al regreso, ingreso al hospedaje, descanso y cena. Dificultad media (2/5).',
       },
       {
-        dia: 'Día 2',
-        plan: 'Senderismo y baño en cascada (o tubing en el río Cafre), visita a jacuzzis naturales y almuerzo antes del regreso.',
+        dia: 'Día 2 · Cañón del Güejar',
+        plan: 'Desayuno, inducción y rafting recreativo por el cañón del río Güejar. Almuerzo y regreso; el plan cierra hacia las 4:00 p. m. Dificultad media (3/5).',
       },
     ],
   },
 ] as const;
 
-/** Sellos del flyer: qué incluye el premio */
+/** Sellos del premio: lo que incluyen ambos planes del operador */
 export const INCLUYE_PREMIO = [
-  'Planes turísticos confiables',
-  'Alojamiento confortable',
-  'Alimentación incluida',
-  'Experiencias inolvidables',
+  'Todo incluido: hospedaje y alimentación',
+  'Transporte local a las actividades',
+  'Guías certificados',
+  'Seguro de asistencia médica',
 ] as const;
 
 export const AVISOS_SEGURIDAD = [
