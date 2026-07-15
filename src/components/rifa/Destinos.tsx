@@ -4,7 +4,11 @@ import { DESTINOS, INCLUYE_PREMIO, type Destino } from "@/lib/contenido";
 /** Los 2 destinos del flyer: el ganador elige uno. */
 export function Destinos() {
   return (
-    <section aria-labelledby="titulo-destinos" className="revelar mt-16 sm:mt-24">
+    // relative z-10: por delante del avión volador cuando pasa "al fondo"
+    <section
+      aria-labelledby="titulo-destinos"
+      className="revelar relative z-10 mt-16 sm:mt-24"
+    >
       <p className="font-titulo text-xs tracking-[0.3em] text-dorado-400">
         EL PREMIO
       </p>

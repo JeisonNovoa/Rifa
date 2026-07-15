@@ -39,7 +39,7 @@ export function ComoFunciona({ rifa }: ComoFuncionaProps) {
     <section
       id="como-funciona"
       aria-labelledby="titulo-como"
-      className="revelar mt-20 scroll-mt-8 sm:mt-28"
+      className="revelar relative z-10 mt-20 scroll-mt-8 sm:mt-28"
     >
       <p className="font-titulo text-xs tracking-[0.3em] text-dorado-400">
         PASO A PASO

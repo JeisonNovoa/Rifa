@@ -85,7 +85,7 @@ export function HeroRifa({ rifa }: HeroRifaProps) {
           </p>
         )}
 
-        <RutaAvion className="mt-8 w-56 text-dorado-400/40 sm:w-72" />
+        <RutaAvion pista className="mt-8 w-56 text-dorado-400/40 sm:w-72" />
       </div>
     </header>
   );

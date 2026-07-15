@@ -1,3 +1,4 @@
+import { AvionVolador } from "@/components/decoracion/AvionVolador";
 import { IconoWhatsApp } from "@/components/decoracion/Iconos";
 import { RutaAvion } from "@/components/decoracion/RutaAvion";
 import { AnuncioGanador } from "@/components/rifa/AnuncioGanador";
@@ -30,10 +31,11 @@ export default async function PaginaRifa() {
           <HeroRifa rifa={rifa} />
           <Destinos />
 
+          {/* relative z-10: por delante del avión cuando este vuela "al fondo" */}
           <section
             id="numeros"
             aria-labelledby="titulo-numeros"
-            className="mt-20 scroll-mt-8 sm:mt-28"
+            className="relative z-10 mt-20 scroll-mt-8 sm:mt-28"
           >
             {rifa.estado === "cerrada" ? (
               <>
@@ -86,8 +88,8 @@ export default async function PaginaRifa() {
 
           <ComoFunciona rifa={rifa} />
 
-          <footer className="revelar mt-24 border-t border-noche-800 pb-4 pt-8 text-center">
-            <RutaAvion className="mx-auto w-44 text-dorado-400/30" />
+          <footer className="revelar relative z-10 mt-24 border-t border-noche-800 pb-4 pt-8 text-center">
+            <RutaAvion pista className="mx-auto w-44 text-dorado-400/30" />
             <p className="mt-2 font-script text-2xl text-dorado-400">
               {FRASE_FOOTER}
             </p>
@@ -107,6 +109,9 @@ export default async function PaginaRifa() {
             <p className="mt-1.5 text-[11px] text-noche-400/80">{TEXTO_LEGAL}</p>
           </footer>
         </main>
+
+        {/* Avioncito que vuela con el scroll (ver ANIMACION-AVION.md) */}
+        <AvionVolador />
       </div>
     );
   } catch (error: unknown) {

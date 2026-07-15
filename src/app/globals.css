@@ -154,6 +154,15 @@ body {
   animation: pop 0.25s var(--ease-salida);
 }
 
+/* Vuelo del avioncito con el scroll (componente AvionVolador + GSAP).
+   Cuando el vuelo se activa, se ocultan los avioncitos ESTÁTICOS de las
+   pistas del hero y el footer: solo debe existir el avión que vuela
+   (despega de una pista y aterriza en la otra). Las rutas punteadas quedan. */
+.vuelo-avion-activo [data-avion-pista] g {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
 /* Aparición ligada al scroll (mejora progresiva: solo navegadores modernos).
    OJO: no usar en contenedores con elementos position:fixed adentro. */
 @supports (animation-timeline: view()) {
