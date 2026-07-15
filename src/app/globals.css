@@ -15,6 +15,7 @@
   /* Azul noche (neutros tintados hacia la marca) */
   --color-noche-950: oklch(17% 0.045 262);
   --color-noche-900: oklch(21% 0.05 260);
+  --color-noche-850: oklch(23.5% 0.052 259);
   --color-noche-800: oklch(26% 0.055 258);
   --color-noche-700: oklch(32% 0.06 256);
   --color-noche-600: oklch(41% 0.055 254);
@@ -22,6 +23,7 @@
   --color-noche-300: oklch(73% 0.03 250);
 
   /* Dorado atardecer */
+  --color-dorado-200: oklch(93% 0.10 90);
   --color-dorado-300: oklch(88% 0.13 90);
   --color-dorado-400: oklch(84% 0.155 86);
   --color-dorado-500: oklch(78% 0.16 81);
@@ -99,11 +101,13 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  min-height: 48px;
   border-radius: 0.9rem;
   background-color: var(--color-dorado-400);
   color: var(--color-noche-950);
   font-weight: 600;
   padding: 0.875rem 1.5rem;
+  -webkit-tap-highlight-color: transparent;
   box-shadow: 0 12px 28px -12px oklch(78% 0.16 81 / 0.55);
   transition:
     background-color 0.15s ease,
@@ -113,13 +117,112 @@ body {
 .btn-dorado:hover {
   background-color: var(--color-dorado-300);
   transform: translateY(-1px);
+  box-shadow: 0 16px 32px -12px oklch(78% 0.16 81 / 0.7);
 }
 .btn-dorado:active {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.97);
 }
 .btn-dorado:focus-visible {
   outline: 2px solid var(--color-dorado-300);
   outline-offset: 2px;
+}
+
+/* Sombra cálida premium reutilizable (tarjetas/selección al interactuar) */
+.glow-dorado {
+  box-shadow: 0 18px 40px -22px oklch(84% 0.155 86 / 0.55);
+}
+
+/* Legibilidad del título sobre el resplandor de amanecer */
+.sombra-titulo {
+  text-shadow: 0 2px 24px oklch(84% 0.155 86 / 0.15);
+}
+
+/* Enlaces secundarios unificados (hero + footer) */
+.enlace-subtle {
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+/* Píldoras de la leyenda del tablero (estados, no notas al pie) */
+.pill-leyenda {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-noche-700);
+  background-color: oklch(21% 0.05 260 / 0.5);
+  padding: 0.25rem 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+/* Badge de abono mínimo del hero */
+.badge-abono {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 9999px;
+  border: 1px solid oklch(84% 0.155 86 / 0.35);
+  background-color: oklch(84% 0.155 86 / 0.06);
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+}
+
+/* Tarjeta de destino más rica: gradiente sutil + elevación al interactuar */
+.tarjeta-destino {
+  position: relative;
+  border-radius: 1rem;
+  border: 1px solid var(--color-noche-850);
+  background-image: linear-gradient(
+    to bottom,
+    oklch(23.5% 0.052 259 / 0.7),
+    oklch(21% 0.05 260 / 0.4)
+  );
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s var(--ease-salida),
+    box-shadow 0.25s ease;
+}
+@media (hover: hover) {
+  .tarjeta-destino:hover {
+    border-color: oklch(78% 0.16 81 / 0.6);
+    transform: translateY(-3px);
+  }
+}
+
+/* Círculo numerado de los pasos: brillo dorado sutil */
+.brillo-paso::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle at 50% 35%,
+    oklch(84% 0.155 86 / 0.25),
+    transparent 70%
+  );
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+@media (hover: hover) {
+  .brillo-paso:hover::before {
+    opacity: 1;
+  }
+}
+
+/* Pseudo-sello rojo en esquina de la boleta crema */
+.sello-esquina {
+  position: absolute;
+  top: -0.6rem;
+  right: 1rem;
+  border: 2px dashed var(--color-rojo-500);
+  border-radius: 9999px;
+  color: var(--color-rojo-500);
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
+  padding: 0.2rem 0.6rem;
+  transform: rotate(8deg);
+  background-color: var(--color-crema-50);
 }
 
 /* --- Movimiento ------------------------------------------------------- */
@@ -154,6 +257,24 @@ body {
   animation: pop 0.25s var(--ease-salida);
 }
 
+/* Respiración muy sutil (sello, "¡Solo un ganador!"). */
+@keyframes flotar-suave {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.flotar-suave {
+  animation: flotar-suave 5s ease-in-out infinite;
+}
+
+/* Despliegue suave del formulario de reserva (opacity + translate, nunca height). */
+@keyframes desplegar {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+.desplegar-form {
+  animation: desplegar 0.28s var(--ease-salida) both;
+}
+
 /* Vuelo del avioncito con el scroll (componente AvionVolador + GSAP).
    Cuando el vuelo se activa, se ocultan los avioncitos ESTÁTICOS de las
    pistas del hero y el footer: solo debe existir el avión que vuela
@@ -172,6 +293,18 @@ body {
       animation-timeline: view();
       animation-range: entry 5% entry 35%;
     }
+    /* Stagger para elementos HIJOS dentro de un contenedor (pasos, tarjetas).
+       Importante: aplicar a wrappers hijos, NUNCA al contenedor que el avión
+       volador mide (ver restricciones en ANIMACION-AVION.md). */
+    .revelar-item {
+      animation: subir 0.7s var(--ease-salida) both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 40%;
+    }
+    .revelar-item--2 { animation-delay: 0.09s; }
+    .revelar-item--3 { animation-delay: 0.18s; }
+    .revelar-item--4 { animation-delay: 0.27s; }
+    .revelar-item--5 { animation-delay: 0.36s; }
   }
 }
 
@@ -217,8 +350,14 @@ body {
   }
   .animar-entrada,
   .numero-pop,
+  .flotar-suave,
+  .desplegar-form,
+  .revelar-item,
   .dialogo-rifa[open],
   .dialogo-rifa[open]::backdrop {
     animation: none;
+  }
+  .btn-dorado:active {
+    transform: none;
   }
 }

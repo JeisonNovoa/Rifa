@@ -11,13 +11,13 @@ interface CasillaNumeroProps {
 }
 
 const ESTILO_BASE =
-  "relative flex aspect-square select-none items-center justify-center rounded-lg border font-titulo text-base transition-all duration-150 sm:text-lg";
+  "relative flex aspect-square select-none items-center justify-center rounded-lg border font-titulo text-base transition-all duration-150 [-webkit-tap-highlight-color:transparent] sm:text-lg";
 
 const ESTILO_DISPONIBLE =
-  "cursor-pointer border-noche-600 bg-noche-900 text-dorado-400 hover:-translate-y-0.5 hover:border-dorado-400 hover:bg-noche-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dorado-400";
+  "cursor-pointer border-noche-600 bg-noche-900 text-dorado-400 hover:-translate-y-0.5 hover:border-dorado-400 hover:bg-noche-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dorado-400 active:scale-90 active:bg-noche-800";
 
 const ESTILO_SELECCIONADO =
-  "-translate-y-0.5 border-dorado-300 bg-dorado-400 text-noche-950 shadow-lg shadow-dorado-500/40";
+  "-translate-y-0.5 border-dorado-300 bg-dorado-400 text-noche-950 shadow-lg shadow-dorado-500/40 glow-dorado";
 
 const ESTILO_APARTADO = "border-noche-800 bg-noche-900/50 text-noche-400/70";
 

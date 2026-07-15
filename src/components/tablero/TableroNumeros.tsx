@@ -56,7 +56,7 @@ export function TableroNumeros({
   return (
     <div>
       {/* Leyenda con conteos en vivo */}
-      <div className="mb-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-noche-300">
+      <div className="mb-4 flex flex-wrap items-center gap-2 text-noche-300">
         <MuestraLeyenda
           clase="border-noche-600 bg-noche-900"
           texto={`${conteos.disponibles} libres`}
@@ -103,8 +103,8 @@ export function TableroNumeros({
 
 function MuestraLeyenda({ clase, texto }: { clase: string; texto: string }) {
   return (
-    <span className="flex items-center gap-1.5">
-      <span aria-hidden="true" className={`h-3.5 w-3.5 rounded border ${clase}`} />
+    <span className="pill-leyenda">
+      <span aria-hidden="true" className={`h-3 w-3 rounded-full border ${clase}`} />
       {texto}
     </span>
   );
