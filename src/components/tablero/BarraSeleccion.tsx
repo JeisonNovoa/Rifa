@@ -49,7 +49,10 @@ export function BarraSeleccion({
             <p className="font-titulo text-[10px] tracking-[0.2em] text-rojo-500">
               N.º
             </p>
-            <p className="font-titulo text-3xl leading-none text-rojo-500">
+            <p
+              key={numero ?? "vacio"}
+              className="numero-pop font-titulo text-3xl leading-none text-rojo-500"
+            >
               {numero === null ? "--" : dosDigitos(numero)}
             </p>
           </div>
@@ -91,11 +94,13 @@ export function BarraSeleccion({
         </div>
 
         {formularioAbierto && numero !== null && (
-          <FormularioReserva
-            raffleId={raffleId}
-            numero={numero}
-            onCancelar={() => setFormularioAbierto(false)}
-          />
+          <div className="desplegar-form">
+            <FormularioReserva
+              raffleId={raffleId}
+              numero={numero}
+              onCancelar={() => setFormularioAbierto(false)}
+            />
+          </div>
         )}
       </div>
     </div>

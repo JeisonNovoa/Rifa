@@ -54,8 +54,8 @@ export function ComoFunciona({ rifa }: ComoFuncionaProps) {
       {/* Pasos sobre una ruta punteada */}
       <ol className="mt-10 space-y-9 border-l border-dashed border-noche-600 pl-6 sm:pl-8">
         {pasos.map((paso, indice) => (
-          <li key={paso.titulo} className="relative">
-            <span className="absolute -left-[2.625rem] flex h-9 w-9 items-center justify-center rounded-full border border-dorado-500/60 bg-noche-950 font-titulo text-sm text-dorado-400 sm:-left-[3.125rem]">
+          <li key={paso.titulo} className={`revelar-item revelar-item--${indice + 1} relative`}>
+            <span className="brillo-paso absolute -left-[2.625rem] flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-dorado-500/60 bg-noche-950 font-titulo text-sm text-dorado-400 sm:-left-[3.125rem]">
               {indice + 1}
             </span>
             <h3 className="text-lg font-semibold text-crema-50">{paso.titulo}</h3>
@@ -65,7 +65,10 @@ export function ComoFunciona({ rifa }: ComoFuncionaProps) {
       </ol>
 
       {/* Boleta crema: cómo se elige el ganador */}
-      <div className="mt-12 overflow-hidden rounded-2xl bg-crema-50 text-noche-900 shadow-xl shadow-noche-900/40">
+      <div className="revelar relative mt-12 overflow-hidden rounded-2xl bg-crema-50 text-noche-900 shadow-xl shadow-noche-900/40 ring-1 ring-dorado-400/10">
+        <span aria-hidden="true" className="sello-esquina font-titulo">
+          SORTEO
+        </span>
         <div className="perforado" aria-hidden="true" />
         <div className="px-6 py-7 sm:px-8">
           <p className="font-titulo text-xs tracking-[0.28em] text-rojo-500">
@@ -85,7 +88,7 @@ export function ComoFunciona({ rifa }: ComoFuncionaProps) {
             del tablero son esas dos cifras: si coinciden con el premio mayor,
             ¡el viaje es tuyo!
           </p>
-          <p className="mt-4 inline-block -rotate-2 font-script text-2xl text-rojo-500">
+          <p className="flotar-suave mt-4 inline-block -rotate-2 font-script text-2xl text-rojo-500">
             ¡Solo un ganador!
           </p>
         </div>

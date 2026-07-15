@@ -79,7 +79,7 @@ export function MisBoletas() {
   return (
     <section
       aria-label="Tus boletas guardadas"
-      className="mt-8 rounded-2xl border border-dorado-500/40 bg-dorado-400/[0.06] p-4"
+      className="revelar mt-8 rounded-2xl border border-dorado-500/40 bg-dorado-400/[0.06] p-4"
     >
       <p className="flex items-center gap-2 font-titulo text-sm tracking-wide text-dorado-300">
         <IconoBoleto className="h-5 w-5" />
@@ -93,7 +93,7 @@ export function MisBoletas() {
           <Link
             key={boleta.numero}
             href={boleta.url}
-            className="inline-flex items-center gap-2 rounded-xl border border-noche-700 bg-noche-900/70 px-3 py-2 text-sm font-medium text-crema-50 transition-colors hover:border-dorado-400 hover:text-dorado-300"
+            className="inline-flex items-center gap-2 rounded-xl border border-noche-700 bg-noche-900/70 px-3 py-2 text-sm font-medium text-crema-50 transition-all hover:border-dorado-400 hover:text-dorado-300 active:scale-[0.97]"
           >
             <span className="font-titulo text-lg text-dorado-400">
               {dosDigitos(boleta.numero)}

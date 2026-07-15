@@ -16,7 +16,14 @@ export function HeroRifa({ rifa }: HeroRifaProps) {
     <header className="relative">
       {/* Cinta superior: sello + fecha del sorteo */}
       <div className="animar-entrada relative flex items-center justify-between pt-6">
-        <SelloRifa className="w-16 -rotate-6 text-dorado-400 sm:w-20" />
+        <div className="relative">
+          {/* Halo cálido detrás del sello */}
+          <span
+            aria-hidden="true"
+            className="absolute inset-0 -z-10 bg-dorado-400/10 blur-2xl"
+          />
+          <SelloRifa className="flotar-suave w-16 -rotate-6 text-dorado-400 sm:w-20" />
+        </div>
         <p className="text-right text-sm leading-snug text-noche-300">
           Sorteo
           <br />
@@ -28,11 +35,12 @@ export function HeroRifa({ rifa }: HeroRifaProps) {
 
       {/* Título de cartel */}
       <div className="relative pb-4 pt-12 sm:pt-16">
-        <p className="animar-entrada font-titulo text-sm tracking-[0.35em] text-dorado-400">
+        <p className="animar-entrada inline-flex items-center gap-2 font-titulo text-xs tracking-[0.3em] text-dorado-400 sm:text-sm sm:tracking-[0.35em]">
+          <span aria-hidden="true" className="h-px w-6 bg-dorado-400/50" />
           GRAN RIFA · TÚ ELIGES TU DESTINO
         </p>
         <h1 className="mt-3">
-          <span className="animar-entrada retraso-1 block font-titulo text-[clamp(3.4rem,13vw,6.5rem)] leading-[0.92] text-crema-50">
+          <span className="sombra-titulo animar-entrada retraso-1 block font-titulo text-[clamp(3.4rem,13vw,6.5rem)] leading-[0.92] text-crema-50">
             VIAJA POR
           </span>
           <span className="animar-entrada retraso-2 -mt-[0.24em] block -rotate-2 pl-[0.15em] font-script text-[clamp(3rem,11.5vw,5.6rem)] leading-none text-dorado-400">
@@ -52,23 +60,29 @@ export function HeroRifa({ rifa }: HeroRifaProps) {
           para vivir tu aventura al máximo.
         </p>
 
-        <div className="animar-entrada retraso-4 mt-8 flex flex-wrap items-center gap-x-6 gap-y-4">
+        <div className="animar-entrada retraso-4 mt-8 flex flex-col items-stretch gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-6 sm:gap-y-4">
           {rifa.estado === "activa" ? (
             <>
-              <a href="#numeros" className="btn-dorado">
+              <a
+                href="#numeros"
+                className="btn-dorado w-full justify-center sm:w-auto sm:justify-start"
+              >
                 <IconoBoleto className="h-5 w-5" />
                 Escoge tu número · {formatearPesos(rifa.precio_por_numero)}
               </a>
               <a
                 href="#como-funciona"
-                className="inline-flex items-center gap-1.5 text-sm font-medium text-noche-300 underline decoration-noche-600 underline-offset-4 transition-colors hover:text-crema-50"
+                className="enlace-subtle inline-flex items-center justify-center gap-1.5 py-1 text-sm font-medium text-noche-300 underline decoration-noche-600 underline-offset-4 hover:text-crema-50 hover:decoration-dorado-400 sm:justify-start"
               >
                 ¿Cómo funciona?
                 <IconoFlechaAbajo className="h-3.5 w-3.5" />
               </a>
             </>
           ) : (
-            <a href="#numeros" className="btn-dorado">
+            <a
+              href="#numeros"
+              className="btn-dorado w-full justify-center sm:w-auto sm:justify-start"
+            >
               <IconoBoleto className="h-5 w-5" />
               Ver el resultado del sorteo
             </a>
@@ -77,11 +91,13 @@ export function HeroRifa({ rifa }: HeroRifaProps) {
 
         {rifa.estado === "activa" && (
           <p className="animar-entrada retraso-4 mt-4 text-sm text-noche-300">
-            💛 Apártala desde{" "}
-            <strong className="font-semibold text-dorado-300">
-              {formatearPesos(rifa.abono_minimo ?? 20000)}
-            </strong>{" "}
-            y termina de pagar antes del sorteo.
+            <span className="badge-abono">
+              💛 Apártala desde{" "}
+              <strong className="font-semibold text-dorado-300">
+                {formatearPesos(rifa.abono_minimo ?? 20000)}
+              </strong>
+            </span>{" "}
+            <span className="mt-1.5 block">y termina de pagar antes del sorteo.</span>
           </p>
         )}
 
